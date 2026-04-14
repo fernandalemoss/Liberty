@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — Liberty Perfumaria</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e2c97e;
+      --gold-dim: rgba(201,168,76,0.08);
+      --bg: #0a0a0a;
+      --surface: #111;
+      --border: rgba(201,168,76,0.18);
+      --text: #e8dcc8;
+      --muted: rgba(232,220,200,0.4);
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Jost', sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: 380px;
+      padding: 48px 40px;
+      position: relative;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 40px; right: 40px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .marca { text-align: center; margin-bottom: 36px; }
+    .marca h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px; font-weight: 300;
+      color: var(--gold); letter-spacing: 6px; text-transform: uppercase;
+    }
+    .marca p {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 3px; margin-top: 3px; text-transform: uppercase;
+    }
+
+    .abas { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+    .aba {
+      flex: 1; background: none; border: none;
+      padding: 10px; font-family: 'Jost', sans-serif;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); cursor: pointer; transition: color 0.3s; position: relative;
+    }
+    .aba::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 1px; background: var(--gold); transform: scaleX(0); transition: transform 0.3s;
+    }
+    .aba.ativa { color: var(--gold); }
+    .aba.ativa::after { transform: scaleX(1); }
+
+    .form-section { display: none; }
+    .form-section.ativo { display: block; }
+
+    .campo { margin-bottom: 16px; }
+    .campo label {
+      display: block; font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+    }
+    .campo input {
+      width: 100%; background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border); padding: 12px 14px;
+      font-family: 'Jost', sans-serif; font-size: 14px;
+      color: var(--text); outline: none; transition: border-color 0.25s, background 0.25s;
+    }
+    .campo input:focus { border-color: var(--gold); background: var(--gold-dim); }
+    .campo input::placeholder { color: var(--muted); }
+
+    .btn-principal {
+      width: 100%; margin-top: 8px; padding: 14px;
+      background: var(--gold); border: none;
+      font-family: 'Jost', sans-serif; font-size: 11px;
+      font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+      color: #0a0a0a; cursor: pointer; transition: background 0.25s, transform 0.15s;
+    }
+    .btn-principal:hover { background: var(--gold-light); }
+    .btn-principal:active { transform: scale(0.98); }
+    .btn-principal.carregando { pointer-events: none; opacity: 0.65; }
+
+    .spinner {
+      display: none; width: 16px; height: 16px; margin: 0 auto;
+      border: 2px solid rgba(0,0,0,0.25); border-top-color: #000;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .msg {
+      font-size: 13px; padding: 10px 12px; margin-top: 14px; display: none; animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .msg.erro { background: rgba(220,60,60,0.08); border: 1px solid rgba(220,60,60,0.25); color: #e07070; display: block; }
+    .msg.ok   { background: rgba(80,180,100,0.08); border: 1px solid rgba(80,180,100,0.25); color: #70c880; display: block; }
+
+    .voltar {
+      display: block; text-align: center; margin-top: 24px;
+      font-size: 12px; color: var(--muted); text-decoration: none;
+      letter-spacing: 1px; transition: color 0.3s;
+    }
+    .voltar:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="marca">
+    <h1>Liberty</h1>
+    <p>Perfumaria</p>
+  </div>
+
+  <div class="abas">
+    <button class="aba ativa" onclick="trocarAba('entrar')">Entrar</button>
+    <button class="aba" onclick="trocarAba('cadastro')">Criar conta</button>
+  </div>
+
+  <div class="form-section ativo" id="form-entrar">
+    <div class="campo"><label>Email</label><input type="email" id="e-email" placeholder="seu@email.com"></div>
+    <div class="campo"><label>Senha</label><input type="password" id="e-senha" placeholder="••••••••"></div>
+    <button class="btn-principal" id="btn-entrar" onclick="fazerLogin()">
+      <span id="txt-entrar">Entrar</span>
+      <div class="spinner" id="spin-entrar"></div>
+    </button>
+    <div class="msg" id="msg-entrar"></div>
+  </div>
+
+  <div class="form-section" id="form-cadastro">
+    <div class="campo"><label>Nome</label><input type="text" id="c-nome" placeholder="Seu nome"></div>
+    <div class="campo"><label>Email</label><input type="email" id="c-email" placeholder="seu@email.com"></div>
+    <div class="campo"><label>Senha</label><input type="password" id="c-senha" placeholder="Mínimo 6 caracteres"></div>
+    <button class="btn-principal" id="btn-cad" onclick="fazerCadastro()">
+      <span id="txt-cad">Criar conta</span>
+      <div class="spinner" id="spin-cad"></div>
+    </button>
+    <div class="msg" id="msg-cad"></div>
+  </div>
+
+  <a href="index.html" class="voltar">← Voltar para a loja</a>
+</div>
+
+<script>
+  const sessao = localStorage.getItem('liberty_sessao');
+  if (sessao) {
+    const u = JSON.parse(sessao);
+    window.location.replace(u.master ? 'adms.html' : 'favoritos.html');
+  }
+
+  function trocarAba(aba) {
+    document.querySelectorAll('.aba').forEach((b,i) =>
+      b.classList.toggle('ativa', aba === 'entrar' ? i===0 : i===1));
+    document.getElementById('form-entrar').classList.toggle('ativo', aba==='entrar');
+    document.getElementById('form-cadastro').classList.toggle('ativo', aba==='cadastro');
+  }
+
+  function loading(btn, spin, txt, on) {
+    document.getElementById(btn).classList.toggle('carregando', on);
+    document.getElementById(spin).style.display = on ? 'block' : 'none';
+    document.getElementById(txt).style.display  = on ? 'none'  : 'inline';
+  }
+
+  function msg(id, texto, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = texto; el.className = 'msg ' + tipo;
+  }
+
+  async function fazerLogin() {
+    const email = document.getElementById('e-email').value.trim();
+    const senha = document.getElementById('e-senha').value;
+    if (!email || !senha) { msg('msg-entrar','Preencha todos os campos.','erro'); return; }
+
+    loading('btn-entrar','spin-entrar','txt-entrar', true);
+    const { data, error } = await db.from('usuarios').select('*').eq('email',email).eq('senha',senha).single();
+    loading('btn-entrar','spin-entrar','txt-entrar', false);
+
+    if (error || !data) { msg('msg-entrar','Email ou senha incorretos.','erro'); return; }
+
+    localStorage.setItem('liberty_sessao', JSON.stringify({ nome: data.nome, email: data.email, master: data.master }));
+    msg('msg-entrar', `Bem-vinda, ${data.nome}!`, 'ok');
+    setTimeout(() => window.location.replace(data.master ? 'adms.html' : 'favoritos.html'), 900);
+  }
+
+  async function fazerCadastro() {
+    const nome  = document.getElementById('c-nome').value.trim();
+    const email = document.getElementById('c-email').value.trim();
+    const senha = document.getElementById('c-senha').value;
+    if (!nome||!email||!senha) { msg('msg-cad','Preencha todos os campos.','erro'); return; }
+    if (senha.length < 6)      { msg('msg-cad','Senha muito curta (mín. 6 caracteres).','erro'); return; }
+    if (!email.includes('@'))  { msg('msg-cad','Email inválido.','erro'); return; }
+
+    loading('btn-cad','spin-cad','txt-cad', true);
+    const { data, error } = await db.from('usuarios').insert([{ nome, email, senha, master: false }]).select().single();
+    loading('btn-cad','spin-cad','txt-cad', false);
+
+    if (error) { msg('msg-cad', error.code==='23505' ? 'Email já cadastrado.' : 'Erro ao criar conta.', 'erro'); return; }
+
+    localStorage.setItem('liberty_sessao', JSON.stringify({ nome, email, master: false }));
+    msg('msg-cad', `Conta criada! Bem-vinda, ${nome} ✨`, 'ok');
+    setTimeout(() => window.location.replace('favoritos.html'), 1000);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    document.getElementById('form-entrar').classList.contains('ativo') ? fazerLogin() : fazerCadastro();
+  });
+</script>
+</body>
+</html>

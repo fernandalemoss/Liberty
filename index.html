@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liberty Perfumaria</title>
+  <link rel="icon" type="image/x-icon" href="scent1_41670.ico">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="feminino.html">Feminino</a>
+    <a href="masculino.html">Masculino</a>
+    <a href="kits.html">Kits</a>
+    <a href="sobrenos.html">Sobre Nós</a>
+    <a href="favoritos.html">Favoritos</a>
+    <a id="link-acesso" href="login-cliente.html" class="link-entrar">Entrar</a>
+  </nav>
+</header>
+
+<section class="banner banner-inicial">
+  <div class="conteudo-banner">
+    <h2>Realce sua essência</h2>
+    <p>Perfumes sofisticados para todos os momentos</p>
+    <a href="https://wa.me/5599999999999?text=Olá!%20Gostaria%20de%20mais%20informações."
+       class="btn-banner" target="_blank" rel="noopener noreferrer">
+      Falar no WhatsApp
+    </a>
+  </div>
+</section>
+
+<section class="produtos">
+  <h2>Todos os Perfumes</h2>
+  <p class="subtitulo-secao">Seleção exclusiva para você</p>
+  <div class="grid">
+
+    <div class="card">
+      <img src="perfume masculino 1.jpg" alt="Sabah Al Ward">
+      <h3>Sabah Al Ward</h3>
+      <p class="desc">floral intenso com fundo quente</p>
+      <div class="preco-row">
+        <span class="preco">R$ 279,99</span>
+        <button class="btn-fav" id="fav-sabah-masc" onclick="toggleFav(this,'sabah-masc','Sabah Al Ward','floral intenso com fundo quente','R$ 279,99','perfume masculino 1.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Sabah%20Al%20Ward')" title="Favoritar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Sabah%20Al%20Ward." target="_blank" rel="noopener noreferrer">
+        <button>Comprar</button>
+      </a>
+    </div>
+
+    <div class="card">
+      <img src="perfume masculino 2.jpg" alt="Fakhar Lattafa">
+      <h3>Fakhar Lattafa</h3>
+      <p class="desc">elegante, quente e levemente doce</p>
+      <div class="preco-row">
+        <span class="preco">R$ 279,99</span>
+        <button class="btn-fav" id="fav-fakhar" onclick="toggleFav(this,'fakhar','Fakhar Lattafa','elegante, quente e levemente doce','R$ 279,99','perfume masculino 2.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Fakhar%20Lattafa')" title="Favoritar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Fakhar%20Lattafa." target="_blank" rel="noopener noreferrer">
+        <button>Comprar</button>
+      </a>
+    </div>
+
+    <div class="card">
+      <img src="perfume feminino 1.jpg" alt="Sabah Al Ward Feminino">
+      <h3>Sabah Al Ward</h3>
+      <p class="desc">floral intenso com fundo quente</p>
+      <div class="preco-row">
+        <span class="preco">R$ 279,99</span>
+        <button class="btn-fav" id="fav-sabah-fem" onclick="toggleFav(this,'sabah-fem','Sabah Al Ward Feminino','floral intenso com fundo quente','R$ 279,99','perfume feminino 1.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Sabah%20Al%20Ward%20feminino')" title="Favoritar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Sabah%20Al%20Ward%20feminino." target="_blank" rel="noopener noreferrer">
+        <button>Comprar</button>
+      </a>
+    </div>
+
+    <div class="card">
+      <img src="perfume feminino 2.jpg" alt="Durrat Al Aroos">
+      <h3>Durrat Al Aroos</h3>
+      <p class="desc">floral suave e delicado</p>
+      <div class="preco-row">
+        <span class="preco">R$ 279,99</span>
+        <button class="btn-fav" id="fav-durrat" onclick="toggleFav(this,'durrat','Durrat Al Aroos','floral suave e delicado','R$ 279,99','perfume feminino 2.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Durrat%20Al%20Aroos')" title="Favoritar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Durrat%20Al%20Aroos." target="_blank" rel="noopener noreferrer">
+        <button>Comprar</button>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<script src="favoritar.js"></script>
+</body>
+</html>
