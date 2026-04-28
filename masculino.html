@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masculino — Liberty Perfumaria</title>
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="feminino.html">Feminino</a>
+    <a href="masculino.html">Masculino</a>
+    <a href="kits.html">Kits</a>
+    <a href="sobrenos.html">Sobre Nós</a>
+    <a id="link-acesso" href="login-cliente.html" class="link-entrar">Entrar</a>
+  </nav>
+</header>
+
+<section class="banner banner-masculino">
+  <div class="conteudo-banner">
+    <h2>A presença que conquista</h2>
+    <p>Para homens que deixam sua marca</p>
+    <a href="https://wa.me/5599999999999" class="btn-banner" target="_blank">Falar no WhatsApp</a>
+  </div>
+</section>
+
+<section class="produtos">
+  <div class="secao-header">
+    <div class="secao-header-left">
+      <h2>Perfumes Masculinos</h2>
+      <p id="subtitulo-contagem">Carregando...</p>
+    </div>
+  </div>
+  <div class="grid" id="grid-produtos">
+    <div class="grid-status"><p>Carregando...</p></div>
+  </div>
+</section>
+
+<footer>
+  <span class="logo-footer">Liberty</span>
+  <p>© 2025 Liberty Perfumaria · Divinópolis, MG</p>
+</footer>
+
+<div id="toast"></div>
+<script src="favoritar.js"></script>
+<script>
+  async function carregarProdutos() {
+    const { data: catData } = await db.from('categorias').select('id').eq('tipo', 'masculino').single();
+    if (!catData) {
+      document.getElementById('grid-produtos').innerHTML = '<div class="grid-status"><p>Categoria não encontrada.</p></div>';
+      return;
+    }
+    const { data, error } = await db
+      .from('produtos')
+      .select('id, nome, descricao, preco, imagem, categorias(nome)')
+      .eq('ativo', true)
+      .eq('categoria_id', catData.id)
+      .order('criado_em', { ascending: false });
+
+    const grid = document.getElementById('grid-produtos');
+    if (error || !data || data.length === 0) {
+      grid.innerHTML = '<div class="grid-status"><p>Nenhum produto encontrado.</p></div>';
+      document.getElementById('subtitulo-contagem').textContent = '0 produtos';
+      return;
+    }
+    document.getElementById('subtitulo-contagem').textContent = `${data.length} perfume${data.length !== 1 ? 's' : ''} disponíve${data.length !== 1 ? 'is' : 'l'}`;
+    const waBase = 'https://wa.me/5599999999999?text=';
+    grid.innerHTML = data.map(p => {
+      const precoFmt = 'R$ ' + Number(p.preco).toFixed(2).replace('.', ',');
+      const waLink   = waBase + encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`);
+      return `
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
+          </div>
+          <div class="card-info">
+            <h3>${p.nome}</h3>
+            <p class="desc">${p.descricao || ''}</p>
+          </div>
+          <div class="preco-row">
+            <span class="preco">${precoFmt}</span>
+            <button class="btn-fav" id="fav-${p.id}" onclick="toggleFav(this,${p.id})" title="Favoritar">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <a href="${waLink}" class="card-comprar" target="_blank" rel="noopener noreferrer">Comprar via WhatsApp</a>
+        </div>`;
+    }).join('');
+    marcarFavoritos();
+  }
+  carregarProdutos();
+</script>
+</body>
+</html>

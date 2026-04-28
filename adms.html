@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Liberty Perfumaria - Admin</title>
+    <link rel="stylesheet" href="adm.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1 class="titulo-principal">LIBERTY PERFUMARIA - ADMIN</h1>
+        <div class="instrucoes-cabecalho">
+            <p><strong>Como usar:</strong></p>
+            <span>➕ <strong>Adicionar:</strong> Preencha o formulário e clique em 'Adicionar'.</span>
+            <span>✏️ <strong>Editar:</strong> Clique no ícone de lápis ou no botão 'Editar'.</span>
+            <span>❌ <strong>Remover:</strong> Clique no 'X' vermelho ou no botão 'Excluir'.</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="sessao-form">
+            <div class="inputs-group">
+                <input type="text" id="nome-input" placeholder="Nome do Perfume">
+                <input type="text" id="preco-input" placeholder="Preço (Ex: 230)">
+                <input type="text" id="categoria-input" placeholder="Categoria">
+                <div class="file-input-wrapper">
+                    <label for="imagem-file" class="file-label">📷 Escolher Imagem</label>
+                    <input type="file" id="imagem-file" accept="image/*" style="display:none">
+                    <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
+                </div>
+                <button class="btn-add-main" onclick="adicionarProduto()">ADICIONAR</button>
+            </div>
+        </section>
+
+        <section class="sessao-tabela">
+            <h2 class="titulo-sessao">LISTA DE PRODUTOS</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ação</th>
+                        <th>Imagem</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Categoria</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <button class="btn-acao">✎</button>
+                            <button class="btn-acao btn-del">X</button>
+                        </td>
+                        <td><img src="perfume feminino 1.jpg" class="img-tabela"></td>
+                        <td>Lattafa Asad</td>
+                        <td>R$ 230</td>
+                        <td>Masculino</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="sessao-visualizacao">
+            <h2 class="titulo-sessao">VISUALIZAÇÃO</h2>
+            <div class="grid-cards">
+                <div class="card-produto">
+                    <img src="perfume feminino 1.jpg" class="img-card-v">
+                    <p class="nome-p">Lattafa Asad</p>
+                    <p class="preco-p">R$ 279,99</p>
+                    <div class="card-acoes">
+                        <button>EDITAR</button>
+                        <button>EXCLUIR</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+     <script src="supabase-config.js"></script>
+     <script>
+        const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+        const STORAGE_BUCKET = 'imagens';
+
+        let imagemSelecionada = null;
+
+        // Mostrar nome do arquivo selecionado
+        document.getElementById('imagem-file').addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            imagemSelecionada = file;
+            document.getElementById('file-name').textContent = file.name;
+          }
+        });
+
+        async function adicionarProduto() {
+          const nome = document.getElementById('nome-input').value.trim();
+          const preco = parseFloat(document.getElementById('preco-input').value);
+          const categoria = document.getElementById('categoria-input').value.trim();
+          const precoFormatado = preco.toFixed(2).replace('.', ',');
+
+          if (!nome || !preco || !categoria) {
+            alert('Preencha nome, preço e categoria.');
+            return;
+          }
+
+          let imagemUrl = null;
+
+          // Upload da imagem se houver
+          if (imagemSelecionada) {
+            imagemUrl = await uploadImagem(imagemSelecionada);
+            if (!imagemUrl) {
+              alert('Erro ao fazer upload da imagem.');
+              return;
+            }
+          }
+
+          // Salvar no Supabase
+          const { error } = await db.from('produtos').insert([{
+            nome,
+            preco,
+            categoria: categoria.toLowerCase(),
+            imagem: imagemUrl,
+            ativo: true,
+            criado_por: 1 // admin padrão
+          }]);
+
+          if (error) {
+            alert('Erro ao salvar: ' + error.message);
+            return;
+          }
+
+          alert('Produto adicionado!');
+          limparFormulario();
+          // Opcional: recarregar tabela se tiver função
+        }
+
+        async function uploadImagem(file) {
+          try {
+            const ext = file.name.split('.').pop();
+            const timestamp = Date.now();
+            const nomeArquivo = `${timestamp}-${timestamp}.${ext}`;
+
+            const { data, error } = await db.storage
+              .from(STORAGE_BUCKET)
+              .upload(nomeArquivo, file, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: file.type
+              });
+
+            if (error) throw error;
+
+            const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${nomeArquivo}`;
+            return publicUrl;
+          } catch (err) {
+            console.error('Erro upload:', err);
+            alert('Erro: ' + err.message);
+            return null;
+          }
+        }
+
+        function limparFormulario() {
+          document.getElementById('nome-input').value = '';
+          document.getElementById('preco-input').value = '';
+          document.getElementById('categoria-input').value = '';
+          document.getElementById('imagem-file').value = '';
+          document.getElementById('file-name').textContent = 'Nenhum arquivo selecionado';
+          imagemSelecionada = null;
+        }
+    </script>
+</body>
+</html>

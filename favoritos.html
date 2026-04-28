@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favoritos — Liberty Perfumaria</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    .fav-hero {
+      padding: 60px 60px 20px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+    .fav-hero h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; font-weight: 300;
+      color: #c9a84c; letter-spacing: 2px;
+    }
+    .fav-hero p { color: rgba(232,220,200,0.5); font-size: 13px; margin-top: 4px; letter-spacing: 1px; }
+
+    .fav-barra {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 60px; background: rgba(201,168,76,0.04);
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+    }
+    .fav-barra span { font-size: 13px; color: rgba(232,220,200,0.6); letter-spacing: 1px; }
+    .fav-barra strong { color: #c9a84c; }
+
+    .btn-sair {
+      background: transparent; border: 1px solid rgba(201,168,76,0.3);
+      color: rgba(201,168,76,0.7); padding: 7px 18px;
+      font-family: 'Jost', sans-serif; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.25s;
+    }
+    .btn-sair:hover { border-color: #c9a84c; color: #c9a84c; }
+
+    .fav-grid { padding: 40px 60px; }
+
+    /* Estado vazio */
+    .vazio {
+      grid-column: 1/-1; text-align: center;
+      padding: 100px 20px; color: rgba(232,220,200,0.35);
+    }
+    .vazio svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.4; }
+    .vazio p { font-size: 16px; margin-bottom: 12px; letter-spacing: 1px; }
+    .vazio a { color: #c9a84c; text-decoration: none; font-size: 13px; letter-spacing: 2px; }
+    .vazio a:hover { text-decoration: underline; }
+
+    /* Botão remover */
+    .btn-remover {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: transparent; border: 1px solid rgba(232,220,200,0.1);
+      color: rgba(232,220,200,0.35); padding: 10px;
+      width: 90%; margin: 0 auto 15px;
+      font-family: 'Jost', sans-serif; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.25s;
+    }
+    .btn-remover svg { width: 14px; height: 14px; transition: 0.25s; }
+    .btn-remover:hover { border-color: rgba(220,60,60,0.4); color: #e07070; }
+    .btn-remover:hover svg { stroke: #e07070; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html">Liberty Perfumaria✨</a></div>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="feminino.html">Feminino</a>
+    <a href="masculino.html">Masculino</a>
+    <a href="kits.html">Kits</a>
+    <a href="sobrenos.html">Sobre Nós</a>
+    <a href="favoritos.html" style="color:#d4af37">Favoritos</a>
+  </nav>
+</header>
+
+<div class="fav-hero">
+  <h2>Meus Favoritos</h2>
+  <p id="subtitulo-fav">Carregando...</p>
+</div>
+
+<div class="fav-barra">
+  <span>Olá, <strong id="nome-usuario">...</strong></span>
+  <button class="btn-sair" onclick="sair()">Sair</button>
+</div>
+
+<section class="fav-grid">
+  <div class="grid" id="lista-favoritos">
+    <p style="color:rgba(232,220,200,0.4); grid-column:1/-1; text-align:center; padding:40px">Carregando...</p>
+  </div>
+</section>
+
+<script>
+  const dadosRaw = localStorage.getItem('liberty_sessao');
+  if (!dadosRaw) { window.location.replace('login-cliente.html'); }
+  const usuario = JSON.parse(dadosRaw);
+  if (usuario.master) { window.location.replace('adms.html'); }
+
+  document.getElementById('nome-usuario').textContent = usuario.nome;
+
+  async function carregarFavoritos() {
+    const { data, error } = await db
+      .from('favoritos')
+      .select('*')
+      .eq('usuario_email', usuario.email)
+      .order('criado_em', { ascending: false });
+
+    const container = document.getElementById('lista-favoritos');
+    const subtitulo = document.getElementById('subtitulo-fav');
+
+    if (error || !data || data.length === 0) {
+      subtitulo.textContent = 'Nenhum favorito salvo ainda';
+      container.innerHTML = `
+        <div class="vazio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <p>Você ainda não salvou nenhum perfume</p>
+          <a href="index.html">Explorar perfumes →</a>
+        </div>`;
+      return;
+    }
+
+    subtitulo.textContent = `${data.length} perfume${data.length > 1 ? 's' : ''} salvo${data.length > 1 ? 's' : ''}`;
+
+    container.innerHTML = data.map(p => `
+      <div class="card" id="card-${p.produto_id}">
+        <img src="${p.imagem}" alt="${p.nome}">
+        <h3>${p.nome}</h3>
+        <p class="desc">${p.desc || ''}</p>
+        <p class="preco">${p.preco}</p>
+        <a href="${p.link_whatsapp}" target="_blank" rel="noopener noreferrer">
+          <button>Comprar via WhatsApp</button>
+        </a>
+        <button class="btn-remover" onclick="remover('${p.produto_id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Remover
+        </button>
+      </div>`).join('');
+  }
+
+  async function remover(produtoId) {
+    await db.from('favoritos').delete()
+      .eq('usuario_email', usuario.email)
+      .eq('produto_id', produtoId);
+
+    const card = document.getElementById('card-' + produtoId);
+    if (card) { card.style.opacity = '0'; card.style.transition = '0.3s'; setTimeout(() => carregarFavoritos(), 300); }
+  }
+
+  function sair() {
+    localStorage.removeItem('liberty_sessao');
+    window.location.replace('index.html');
+  }
+
+  carregarFavoritos();
+</script>
+</body>
+</html>
