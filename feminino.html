@@ -12,6 +12,13 @@
 
 <header>
   <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
+  <div class="header-search">
+    <input type="text" id="input-busca" placeholder="Buscar perfume..." autocomplete="off">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <div class="search-results" id="search-results"></div>
+  </div>
   <nav class="menu">
     <a href="index.html">Início</a>
     <a href="feminino.html">Feminino</a>
@@ -36,6 +43,9 @@
       <h2>Perfumes Femininos</h2>
       <p id="subtitulo-contagem">Carregando...</p>
     </div>
+    <div class="filtros-wrap">
+      <div class="filtros-cats" id="filtros-subcats"></div>
+    </div>
   </div>
   <div class="grid" id="grid-produtos">
     <div class="grid-status"><p>Carregando...</p></div>
@@ -50,34 +60,75 @@
 <div id="toast"></div>
 <script src="favoritar.js"></script>
 <script>
-  async function carregarProdutos() {
-    // Busca categoria "feminino"
-    const { data: catData } = await db.from('categorias').select('id').eq('tipo', 'feminino').single();
-    if (!catData) {
-      document.getElementById('grid-produtos').innerHTML = '<div class="grid-status"><p>Categoria não encontrada.</p></div>';
-      return;
-    }
-    const { data, error } = await db
-      .from('produtos')
-      .select('id, nome, descricao, preco, imagem, categorias(nome)')
-      .eq('ativo', true)
-      .eq('categoria_id', catData.id)
-      .order('criado_em', { ascending: false });
+  let todosProdutos = [];
+  let subcatAtiva   = null;
 
-    const grid = document.getElementById('grid-produtos');
-    if (error || !data || data.length === 0) {
-      grid.innerHTML = '<div class="grid-status"><p>Nenhum produto encontrado.</p></div>';
-      document.getElementById('subtitulo-contagem').textContent = '0 produtos';
-      return;
+  async function init() {
+    // Busca categoria feminino
+    const { data: cat } = await db.from('categorias').select('id').eq('tipo', 'feminino').single();
+    if (!cat) { document.getElementById('grid-produtos').innerHTML = '<div class="grid-status"><p>Categoria não encontrada.</p></div>'; return; }
+
+    const [{ data: produtos }, { data: subcats }] = await Promise.all([
+      db.from('produtos')
+        .select('id, nome, descricao, preco, imagem, subcategoria_id, subcategorias(id, nome)')
+        .eq('ativo', true)
+        .order('criado_em', { ascending: false })
+        .in('subcategoria_id',
+          (await db.from('subcategorias').select('id').eq('categoria_id', cat.id)).data?.map(s => s.id) || []
+        ),
+      db.from('subcategorias').select('id, nome').eq('categoria_id', cat.id).eq('ativo', true).order('nome')
+    ]);
+
+    todosProdutos = produtos || [];
+
+    // Monta filtros de subcategoria
+    const wrap = document.getElementById('filtros-subcats');
+    if (subcats && subcats.length > 0) {
+      const btnTodas = document.createElement('button');
+      btnTodas.className = 'btn-filtro ativo';
+      btnTodas.textContent = 'Todas';
+      btnTodas.onclick = () => filtrar(null, btnTodas);
+      wrap.appendChild(btnTodas);
+
+      subcats.forEach(sub => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-filtro';
+        btn.textContent = sub.nome;
+        btn.onclick = () => filtrar(sub, btn);
+        wrap.appendChild(btn);
+      });
     }
-    document.getElementById('subtitulo-contagem').textContent = `${data.length} perfume${data.length !== 1 ? 's' : ''} disponíve${data.length !== 1 ? 'is' : 'l'}`;
+
+    renderizar(todosProdutos);
+    iniciarBusca();
+  }
+
+  function filtrar(sub, btnClicado) {
+    subcatAtiva = sub;
+    document.querySelectorAll('#filtros-subcats .btn-filtro').forEach(b => b.classList.remove('ativo'));
+    btnClicado.classList.add('ativo');
+    renderizar(sub ? todosProdutos.filter(p => p.subcategoria_id === sub.id) : todosProdutos);
+  }
+
+  function renderizar(lista) {
+    const grid      = document.getElementById('grid-produtos');
+    const subtitulo = document.getElementById('subtitulo-contagem');
+    subtitulo.textContent = `${lista.length} perfume${lista.length !== 1 ? 's' : ''} disponíve${lista.length !== 1 ? 'is' : 'l'}`;
+
+    if (lista.length === 0) { grid.innerHTML = '<div class="grid-status"><p>Nenhum produto encontrado.</p></div>'; return; }
+
     const waBase = 'https://wa.me/5599999999999?text=';
-    grid.innerHTML = data.map(p => {
+    grid.innerHTML = lista.map(p => {
       const precoFmt = 'R$ ' + Number(p.preco).toFixed(2).replace('.', ',');
       const waLink   = waBase + encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`);
+      const subNome  = p.subcategorias?.nome || '';
       return `
         <div class="card">
           <div class="card-img-wrap">
+            <div class="card-badges">
+              <span class="card-badge">Feminino</span>
+              ${subNome ? `<span class="card-badge sub">${subNome}</span>` : ''}
+            </div>
             <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
           </div>
           <div class="card-info">
@@ -95,7 +146,35 @@
     }).join('');
     marcarFavoritos();
   }
-  carregarProdutos();
+
+  function iniciarBusca() {
+    const input   = document.getElementById('input-busca');
+    const results = document.getElementById('search-results');
+    let timer;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (!q) { results.classList.remove('visivel'); return; }
+      timer = setTimeout(() => {
+        const found = todosProdutos.filter(p => p.nome.toLowerCase().includes(q.toLowerCase()));
+        results.innerHTML = found.length === 0
+          ? '<p class="search-vazio">Nenhum perfume encontrado</p>'
+          : found.slice(0,6).map(p => `
+              <a class="search-result-item" href="https://wa.me/5599999999999?text=${encodeURIComponent(`Interesse no ${p.nome}`)}" target="_blank">
+                <img src="${p.imagem||''}" alt="${p.nome}" onerror="this.style.display='none'">
+                <div class="search-result-info">
+                  <div class="search-result-nome">${p.nome}</div>
+                  <div class="search-result-sub">${p.subcategorias?.nome||''}</div>
+                  <div class="search-result-preco">R$ ${Number(p.preco).toFixed(2).replace('.',',')}</div>
+                </div>
+              </a>`).join('');
+        results.classList.add('visivel');
+      }, 250);
+    });
+    document.addEventListener('click', e => { if (!e.target.closest('.header-search')) results.classList.remove('visivel'); });
+  }
+
+  init();
 </script>
 </body>
 </html>

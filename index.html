@@ -13,6 +13,16 @@
 
 <header>
   <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
+
+  <!-- BUSCA -->
+  <div class="header-search">
+    <input type="text" id="input-busca" placeholder="Buscar perfume..." autocomplete="off">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <div class="search-results" id="search-results"></div>
+  </div>
+
   <nav class="menu">
     <a href="index.html">Início</a>
     <a href="feminino.html">Feminino</a>
@@ -40,8 +50,13 @@
       <h2>Nossos Perfumes</h2>
       <p id="subtitulo-contagem">Carregando...</p>
     </div>
-    <div class="filtros" id="filtros">
-      <button class="btn-filtro ativo" onclick="filtrar(null, this)">Todos</button>
+    <div class="filtros-wrap">
+      <!-- Categorias pai -->
+      <div class="filtros-cats" id="filtros-cats">
+        <button class="btn-filtro ativo" onclick="filtrarCategoria(null, this)">Todos</button>
+      </div>
+      <!-- Subcategorias (aparece ao selecionar categoria) -->
+      <div class="filtros-subcats" id="filtros-subcats"></div>
     </div>
   </div>
   <div class="grid" id="grid-produtos">
@@ -58,73 +73,124 @@
 <script src="favoritar.js"></script>
 
 <script>
-  let todosProdutos = [];
-  let categoriaAtiva = null;
+  let todosProdutos  = [];
+  let catAtiva       = null;
+  let subcatAtiva    = null;
+  let todasSubcats   = []; // { id, nome, categoria_id }
 
-  async function carregarProdutos() {
-    const { data, error } = await db
-      .from('produtos')
-      .select('id, nome, descricao, preco, imagem, categorias(nome)')
-      .eq('ativo', true)
-      .order('criado_em', { ascending: false });
+  // ── CARREGAR TUDO ───────────────────────────────────────
+  async function init() {
+    const [{ data: produtos }, { data: cats }, { data: subcats }] = await Promise.all([
+      db.from('produtos')
+        .select('id, nome, descricao, preco, imagem, subcategoria_id, subcategorias(id, nome, categoria_id, categorias(id, nome))')
+        .eq('ativo', true)
+        .order('criado_em', { ascending: false }),
+      db.from('categorias').select('id, nome, tipo').eq('ativo', true).order('nome'),
+      db.from('subcategorias').select('id, nome, tipo, categoria_id').eq('ativo', true).order('nome')
+    ]);
 
-    const grid = document.getElementById('grid-produtos');
-
-    if (error || !data) {
-      grid.innerHTML = '<div class="grid-status"><p>Erro ao carregar produtos.</p></div>';
-      return;
-    }
-
-    todosProdutos = data;
+    todosProdutos = produtos || [];
+    todasSubcats  = subcats  || [];
 
     // Monta filtros de categoria
-    const cats = [...new Set(data.map(p => p.categorias?.nome).filter(Boolean))];
-    const filtrosEl = document.getElementById('filtros');
-    cats.forEach(cat => {
+    const filtrosCats = document.getElementById('filtros-cats');
+    (cats || []).forEach(cat => {
       const btn = document.createElement('button');
       btn.className = 'btn-filtro';
-      btn.textContent = cat;
-      btn.onclick = () => filtrar(cat, btn);
-      filtrosEl.appendChild(btn);
+      btn.textContent = cat.nome;
+      btn.dataset.id = cat.id;
+      btn.onclick = () => filtrarCategoria(cat, btn);
+      filtrosCats.appendChild(btn);
     });
 
-    renderizarProdutos(data);
+    renderizar();
+    iniciarBusca();
   }
 
-  function filtrar(categoria, btnClicado) {
-    categoriaAtiva = categoria;
-    document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+  // ── FILTRAR POR CATEGORIA ────────────────────────────────
+  function filtrarCategoria(cat, btnClicado) {
+    catAtiva    = cat;
+    subcatAtiva = null;
+
+    document.querySelectorAll('.filtros-cats .btn-filtro').forEach(b => b.classList.remove('ativo'));
     btnClicado.classList.add('ativo');
-    const filtrados = categoria
-      ? todosProdutos.filter(p => p.categorias?.nome === categoria)
-      : todosProdutos;
-    renderizarProdutos(filtrados);
+
+    // Monta subcategorias da categoria selecionada
+    const filtrosSubcats = document.getElementById('filtros-subcats');
+    filtrosSubcats.innerHTML = '';
+
+    if (cat) {
+      const subcatsDaCat = todasSubcats.filter(s => s.categoria_id === cat.id);
+      if (subcatsDaCat.length > 0) {
+        const btnTodas = document.createElement('button');
+        btnTodas.className = 'btn-filtro subcat ativo';
+        btnTodas.textContent = 'Todas';
+        btnTodas.onclick = () => filtrarSubcat(null, btnTodas);
+        filtrosSubcats.appendChild(btnTodas);
+
+        subcatsDaCat.forEach(sub => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-filtro subcat';
+          btn.textContent = sub.nome;
+          btn.dataset.id = sub.id;
+          btn.onclick = () => filtrarSubcat(sub, btn);
+          filtrosSubcats.appendChild(btn);
+        });
+      }
+    }
+
+    renderizar();
   }
 
-  function renderizarProdutos(produtos) {
-    const grid = document.getElementById('grid-produtos');
+  // ── FILTRAR POR SUBCATEGORIA ─────────────────────────────
+  function filtrarSubcat(sub, btnClicado) {
+    subcatAtiva = sub;
+    document.querySelectorAll('.filtros-subcats .btn-filtro').forEach(b => b.classList.remove('ativo'));
+    btnClicado.classList.add('ativo');
+    renderizar();
+  }
+
+  // ── RENDERIZAR PRODUTOS ──────────────────────────────────
+  function renderizar(listaOverride = null) {
+    const grid      = document.getElementById('grid-produtos');
     const subtitulo = document.getElementById('subtitulo-contagem');
 
-    subtitulo.textContent = `${produtos.length} perfume${produtos.length !== 1 ? 's' : ''} disponíve${produtos.length !== 1 ? 'is' : 'l'}`;
+    let lista = listaOverride ?? todosProdutos;
 
-    if (produtos.length === 0) {
+    // Filtro categoria
+    if (catAtiva && !listaOverride) {
+      lista = lista.filter(p =>
+        p.subcategorias?.categorias?.id === catAtiva.id
+      );
+    }
+
+    // Filtro subcategoria
+    if (subcatAtiva && !listaOverride) {
+      lista = lista.filter(p => p.subcategoria_id === subcatAtiva.id);
+    }
+
+    subtitulo.textContent = `${lista.length} perfume${lista.length !== 1 ? 's' : ''} disponíve${lista.length !== 1 ? 'is' : 'l'}`;
+
+    if (lista.length === 0) {
       grid.innerHTML = '<div class="grid-status"><p>Nenhum produto encontrado.</p></div>';
       return;
     }
 
     const waBase = 'https://wa.me/5599999999999?text=';
-
-    grid.innerHTML = produtos.map(p => {
+    grid.innerHTML = lista.map(p => {
       const precoFmt = 'R$ ' + Number(p.preco).toFixed(2).replace('.', ',');
       const waLink   = waBase + encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`);
-      const catNome  = p.categorias?.nome || '';
+      const catNome  = p.subcategorias?.categorias?.nome || '';
+      const subNome  = p.subcategorias?.nome || '';
 
       return `
         <div class="card">
           <div class="card-img-wrap">
-            ${catNome ? `<span class="card-badge">${catNome}</span>` : ''}
-            <img src="${p.imagem || ''}" alt="${p.nome}"
-              onerror="this.style.display='none'">
+            <div class="card-badges">
+              ${catNome ? `<span class="card-badge">${catNome}</span>` : ''}
+              ${subNome ? `<span class="card-badge sub">${subNome}</span>` : ''}
+            </div>
+            <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
           </div>
           <div class="card-info">
             <h3>${p.nome}</h3>
@@ -132,14 +198,8 @@
           </div>
           <div class="preco-row">
             <span class="preco">${precoFmt}</span>
-            <button
-              class="btn-fav"
-              id="fav-${p.id}"
-              onclick="toggleFav(this, ${p.id})"
-              title="Favoritar">
-              <svg viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
+            <button class="btn-fav" id="fav-${p.id}" onclick="toggleFav(this,${p.id})" title="Favoritar">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
           </div>
           <a href="${waLink}" class="card-comprar" target="_blank" rel="noopener noreferrer">
@@ -148,11 +208,78 @@
         </div>`;
     }).join('');
 
-    // Remark favoritos após renderizar
     marcarFavoritos();
   }
 
-  carregarProdutos();
+  // ── BUSCA ────────────────────────────────────────────────
+  function iniciarBusca() {
+    const input   = document.getElementById('input-busca');
+    const results = document.getElementById('search-results');
+    let timer;
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+
+      if (!q) { results.classList.remove('visivel'); results.innerHTML = ''; return; }
+
+      timer = setTimeout(() => {
+        const encontrados = todosProdutos.filter(p =>
+          p.nome.toLowerCase().includes(q.toLowerCase()) ||
+          (p.descricao || '').toLowerCase().includes(q.toLowerCase())
+        );
+
+        if (encontrados.length === 0) {
+          results.innerHTML = '<p class="search-vazio">Nenhum perfume encontrado</p>';
+        } else {
+          results.innerHTML = encontrados.slice(0, 6).map(p => {
+            const waLink = `https://wa.me/5599999999999?text=${encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`)}`;
+            return `
+              <a class="search-result-item" href="${waLink}" target="_blank" rel="noopener noreferrer">
+                <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
+                <div class="search-result-info">
+                  <div class="search-result-nome">${p.nome}</div>
+                  <div class="search-result-sub">${p.subcategorias?.nome || ''}</div>
+                  <div class="search-result-preco">R$ ${Number(p.preco).toFixed(2).replace('.', ',')}</div>
+                </div>
+              </a>`;
+          }).join('');
+        }
+
+        results.classList.add('visivel');
+      }, 250);
+    });
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.header-search')) {
+        results.classList.remove('visivel');
+        results.innerHTML = '';
+      }
+    });
+
+    // Enter rola para os resultados na grade
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const q = input.value.trim();
+        if (!q) return;
+        results.classList.remove('visivel');
+        const filtrados = todosProdutos.filter(p =>
+          p.nome.toLowerCase().includes(q.toLowerCase()) ||
+          (p.descricao || '').toLowerCase().includes(q.toLowerCase())
+        );
+        // Reseta filtros de categoria e mostra resultado
+        catAtiva = null; subcatAtiva = null;
+        document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+        document.querySelector('.filtros-cats .btn-filtro').classList.add('ativo');
+        document.getElementById('filtros-subcats').innerHTML = '';
+        renderizar(filtrados);
+        document.querySelector('.produtos').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  init();
 </script>
 
 </body>

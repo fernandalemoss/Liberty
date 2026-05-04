@@ -1,6 +1,4 @@
 // favoritar.js — lógica compartilhada de favoritos
-// produto_id é BIGINT no banco — sempre usar Number()
-
 const sessaoRaw = localStorage.getItem('liberty_sessao');
 const usuario   = sessaoRaw ? JSON.parse(sessaoRaw) : null;
 
@@ -19,18 +17,18 @@ if (linkAcesso) {
 // Marca corações dos produtos já favoritados
 async function marcarFavoritos() {
   if (!usuario) return;
-  const { data, error } = await db
+  const { data } = await db
     .from('favoritos')
     .select('produto_id')
     .eq('usuario_id', usuario.id);
-  if (error || !data) return;
+  if (!data) return;
   data.forEach(f => {
     const btn = document.getElementById('fav-' + f.produto_id);
     if (btn) btn.classList.add('favoritado');
   });
 }
 
-// Toggle favorito — produto_id é BIGINT, sempre Number()
+// Toggle favorito — produto_id é BIGINT
 async function toggleFav(btn, produtoId) {
   if (!usuario) {
     if (confirm('Faça login para salvar favoritos.\n\nIr para o login?')) {
@@ -39,40 +37,25 @@ async function toggleFav(btn, produtoId) {
     return;
   }
 
-  const id    = Number(produtoId); // garante BIGINT
+  const id    = Number(produtoId);
   const jaFav = btn.classList.contains('favoritado');
 
-  // Animação imediata
   btn.classList.remove('pop');
   void btn.offsetWidth;
   btn.classList.add('pop');
 
   if (jaFav) {
     btn.classList.remove('favoritado');
-    const { error } = await db
-      .from('favoritos')
-      .delete()
-      .eq('usuario_id', usuario.id)
-      .eq('produto_id', id);
-    if (error) {
-      btn.classList.add('favoritado');
-      console.error('Erro ao remover favorito:', error.message);
-      mostrarToast('Erro ao remover. Tente novamente.');
-    } else {
-      mostrarToast('Removido dos favoritos');
-    }
+    const { error } = await db.from('favoritos').delete()
+      .eq('usuario_id', usuario.id).eq('produto_id', id);
+    if (error) { btn.classList.add('favoritado'); mostrarToast('Erro ao remover.'); }
+    else mostrarToast('Removido dos favoritos');
   } else {
     btn.classList.add('favoritado');
-    const { error } = await db
-      .from('favoritos')
+    const { error } = await db.from('favoritos')
       .insert({ usuario_id: usuario.id, produto_id: id });
-    if (error) {
-      btn.classList.remove('favoritado');
-      console.error('Erro ao favoritar:', error.message, error.code);
-      mostrarToast('Erro ao salvar. Tente novamente.');
-    } else {
-      mostrarToast('Salvo nos favoritos');
-    }
+    if (error) { btn.classList.remove('favoritado'); mostrarToast('Erro ao salvar.'); }
+    else mostrarToast('Salvo nos favoritos');
   }
 }
 
@@ -80,8 +63,7 @@ let _tt;
 function mostrarToast(msg) {
   const el = document.getElementById('toast');
   if (!el) return;
-  el.textContent = msg;
-  el.style.opacity = '1';
+  el.textContent = msg; el.style.opacity = '1';
   clearTimeout(_tt);
   _tt = setTimeout(() => el.style.opacity = '0', 2600);
 }
