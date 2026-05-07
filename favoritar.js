@@ -1,34 +1,35 @@
-// favoritar.js
-
+// favoritar.js — lógica compartilhada de favoritos
 const sessaoRaw = localStorage.getItem('liberty_sessao');
-const usuario = sessaoRaw ? JSON.parse(sessaoRaw) : null;
+const usuario   = sessaoRaw ? JSON.parse(sessaoRaw) : null;
 
-// Atualiza menu (Entrar / Nome)
+// Atualiza link do menu
 const linkAcesso = document.getElementById('link-acesso');
-if (linkAcesso && usuario) {
-  linkAcesso.textContent = usuario.nome.split(' ')[0];
-  linkAcesso.href = 'favoritos.html';
+if (linkAcesso) {
+  if (usuario) {
+    linkAcesso.textContent = usuario.nome.split(' ')[0];
+    linkAcesso.href = usuario.admin ? 'admin.html' : 'perfil.html';
+  } else {
+    linkAcesso.textContent = 'Entrar';
+    linkAcesso.href = 'login-cliente.html';
+  }
 }
 
-// Marca favoritos ao carregar
+// Marca corações dos produtos já favoritados
 async function marcarFavoritos() {
   if (!usuario) return;
-
   const { data } = await db
     .from('favoritos')
     .select('produto_id')
     .eq('usuario_id', usuario.id);
-
   if (!data) return;
-
   data.forEach(f => {
     const btn = document.getElementById('fav-' + f.produto_id);
     if (btn) btn.classList.add('favoritado');
   });
 }
 
-// Toggle favorito
-async function toggleFav(btn, produto_id) {
+// Toggle favorito — produto_id é BIGINT
+async function toggleFav(btn, produtoId) {
   if (!usuario) {
     if (confirm('Faça login para salvar favoritos.\n\nIr para o login?')) {
       window.location.href = 'login-cliente.html';
@@ -36,56 +37,35 @@ async function toggleFav(btn, produto_id) {
     return;
   }
 
+  const id    = Number(produtoId);
   const jaFav = btn.classList.contains('favoritado');
 
-  // animação
   btn.classList.remove('pop');
   void btn.offsetWidth;
   btn.classList.add('pop');
 
   if (jaFav) {
-    // REMOVE
     btn.classList.remove('favoritado');
-
-    await db
-      .from('favoritos')
-      .delete()
-      .eq('usuario_id', usuario.id)
-      .eq('produto_id', produto_id);
-
-    mostrarToast('Removido dos favoritos');
-
+    const { error } = await db.from('favoritos').delete()
+      .eq('usuario_id', usuario.id).eq('produto_id', id);
+    if (error) { btn.classList.add('favoritado'); mostrarToast('Erro ao remover.'); }
+    else mostrarToast('Removido dos favoritos');
   } else {
-    // ADD
     btn.classList.add('favoritado');
-
-    await db
-      .from('favoritos')
-      .upsert(
-        [{
-          usuario_id: usuario.id,
-          produto_id: produto_id
-        }],
-        { onConflict: 'usuario_id,produto_id' }
-      );
-
-    mostrarToast('Salvo nos favoritos');
+    const { error } = await db.from('favoritos')
+      .insert({ usuario_id: usuario.id, produto_id: id });
+    if (error) { btn.classList.remove('favoritado'); mostrarToast('Erro ao salvar.'); }
+    else mostrarToast('Salvo nos favoritos');
   }
 }
 
-// Toast
-let _toastTimer;
+let _tt;
 function mostrarToast(msg) {
   const el = document.getElementById('toast');
   if (!el) return;
-
-  el.textContent = msg;
-  el.style.opacity = '1';
-
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => {
-    el.style.opacity = '0';
-  }, 2600);
+  el.textContent = msg; el.style.opacity = '1';
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.style.opacity = '0', 2600);
 }
 
 marcarFavoritos();

@@ -13,13 +13,22 @@
 
 <header>
   <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
+
+  <!-- BUSCA -->
+  <div class="header-search">
+    <input type="text" id="input-busca" placeholder="Buscar perfume..." autocomplete="off">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <div class="search-results" id="search-results"></div>
+  </div>
+
   <nav class="menu">
     <a href="index.html">Início</a>
     <a href="feminino.html">Feminino</a>
     <a href="masculino.html">Masculino</a>
     <a href="kits.html">Kits</a>
     <a href="sobrenos.html">Sobre Nós</a>
-    <a href="favoritos.html">Favoritos</a>
     <a id="link-acesso" href="login-cliente.html" class="link-entrar">Entrar</a>
   </nav>
 </header>
@@ -36,75 +45,242 @@
 </section>
 
 <section class="produtos">
-  <h2>Todos os Perfumes</h2>
-  <p class="subtitulo-secao">Seleção exclusiva para você</p>
-  <div class="grid">
-
-    <div class="card">
-      <img src="perfume masculino 1.jpg" alt="Sabah Al Ward">
-      <h3>Sabah Al Ward</h3>
-      <p class="desc">floral intenso com fundo quente</p>
-      <div class="preco-row">
-        <span class="preco">R$ 279,99</span>
-        <button class="btn-fav" id="fav-sabah-masc" onclick="toggleFav(this,'sabah-masc','Sabah Al Ward','floral intenso com fundo quente','R$ 279,99','perfume masculino 1.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Sabah%20Al%20Ward')" title="Favoritar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
-      </div>
-      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Sabah%20Al%20Ward." target="_blank" rel="noopener noreferrer">
-        <button>Comprar</button>
-      </a>
+  <div class="secao-header">
+    <div class="secao-header-left">
+      <h2>Nossos Perfumes</h2>
+      <p id="subtitulo-contagem">Carregando...</p>
     </div>
-
-    <div class="card">
-      <img src="perfume masculino 2.jpg" alt="Fakhar Lattafa">
-      <h3>Fakhar Lattafa</h3>
-      <p class="desc">elegante, quente e levemente doce</p>
-      <div class="preco-row">
-        <span class="preco">R$ 279,99</span>
-        <button class="btn-fav" id="fav-fakhar" onclick="toggleFav(this,'fakhar','Fakhar Lattafa','elegante, quente e levemente doce','R$ 279,99','perfume masculino 2.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Fakhar%20Lattafa')" title="Favoritar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
+    <div class="filtros-wrap">
+      <!-- Categorias pai -->
+      <div class="filtros-cats" id="filtros-cats">
+        <button class="btn-filtro ativo" onclick="filtrarCategoria(null, this)">Todos</button>
       </div>
-      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Fakhar%20Lattafa." target="_blank" rel="noopener noreferrer">
-        <button>Comprar</button>
-      </a>
+      <!-- Subcategorias (aparece ao selecionar categoria) -->
+      <div class="filtros-subcats" id="filtros-subcats"></div>
     </div>
-
-    <div class="card">
-      <img src="perfume feminino 1.jpg" alt="Sabah Al Ward Feminino">
-      <h3>Sabah Al Ward</h3>
-      <p class="desc">floral intenso com fundo quente</p>
-      <div class="preco-row">
-        <span class="preco">R$ 279,99</span>
-        <button class="btn-fav" id="fav-sabah-fem" onclick="toggleFav(this,'sabah-fem','Sabah Al Ward Feminino','floral intenso com fundo quente','R$ 279,99','perfume feminino 1.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Sabah%20Al%20Ward%20feminino')" title="Favoritar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
-      </div>
-      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Sabah%20Al%20Ward%20feminino." target="_blank" rel="noopener noreferrer">
-        <button>Comprar</button>
-      </a>
-    </div>
-
-    <div class="card">
-      <img src="perfume feminino 2.jpg" alt="Durrat Al Aroos">
-      <h3>Durrat Al Aroos</h3>
-      <p class="desc">floral suave e delicado</p>
-      <div class="preco-row">
-        <span class="preco">R$ 279,99</span>
-        <button class="btn-fav" id="fav-durrat" onclick="toggleFav(this,'durrat','Durrat Al Aroos','floral suave e delicado','R$ 279,99','perfume feminino 2.jpg','https://wa.me/5599999999999?text=Interesse%20no%20Durrat%20Al%20Aroos')" title="Favoritar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
-      </div>
-      <a href="https://wa.me/5599999999999?text=Tenho%20interesse%20no%20Durrat%20Al%20Aroos." target="_blank" rel="noopener noreferrer">
-        <button>Comprar</button>
-      </a>
-    </div>
-
+  </div>
+  <div class="grid" id="grid-produtos">
+    <div class="grid-status"><p>Carregando perfumes...</p></div>
   </div>
 </section>
 
-<div id="toast"></div>
+<footer>
+  <span class="logo-footer">Liberty</span>
+  <p>© 2025 Liberty Perfumaria · Divinópolis, MG</p>
+</footer>
 
+<div id="toast"></div>
 <script src="favoritar.js"></script>
+
+<script>
+  let todosProdutos  = [];
+  let catAtiva       = null;
+  let subcatAtiva    = null;
+  let todasSubcats   = []; // { id, nome, categoria_id }
+
+  // ── CARREGAR TUDO ───────────────────────────────────────
+  async function init() {
+    const [{ data: produtos }, { data: cats }, { data: subcats }] = await Promise.all([
+      db.from('produtos')
+        .select('id, nome, descricao, preco, imagem, subcategoria_id, subcategorias(id, nome, categoria_id, categorias(id, nome))')
+        .eq('ativo', true)
+        .order('criado_em', { ascending: false }),
+      db.from('categorias').select('id, nome, tipo').eq('ativo', true).order('nome'),
+      db.from('subcategorias').select('id, nome, tipo, categoria_id').eq('ativo', true).order('nome')
+    ]);
+
+    todosProdutos = produtos || [];
+    todasSubcats  = subcats  || [];
+
+    // Monta filtros de categoria
+    const filtrosCats = document.getElementById('filtros-cats');
+    (cats || []).forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'btn-filtro';
+      btn.textContent = cat.nome;
+      btn.dataset.id = cat.id;
+      btn.onclick = () => filtrarCategoria(cat, btn);
+      filtrosCats.appendChild(btn);
+    });
+
+    renderizar();
+    iniciarBusca();
+  }
+
+  // ── FILTRAR POR CATEGORIA ────────────────────────────────
+  function filtrarCategoria(cat, btnClicado) {
+    catAtiva    = cat;
+    subcatAtiva = null;
+
+    document.querySelectorAll('.filtros-cats .btn-filtro').forEach(b => b.classList.remove('ativo'));
+    btnClicado.classList.add('ativo');
+
+    // Monta subcategorias da categoria selecionada
+    const filtrosSubcats = document.getElementById('filtros-subcats');
+    filtrosSubcats.innerHTML = '';
+
+    if (cat) {
+      const subcatsDaCat = todasSubcats.filter(s => s.categoria_id === cat.id);
+      if (subcatsDaCat.length > 0) {
+        const btnTodas = document.createElement('button');
+        btnTodas.className = 'btn-filtro subcat ativo';
+        btnTodas.textContent = 'Todas';
+        btnTodas.onclick = () => filtrarSubcat(null, btnTodas);
+        filtrosSubcats.appendChild(btnTodas);
+
+        subcatsDaCat.forEach(sub => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-filtro subcat';
+          btn.textContent = sub.nome;
+          btn.dataset.id = sub.id;
+          btn.onclick = () => filtrarSubcat(sub, btn);
+          filtrosSubcats.appendChild(btn);
+        });
+      }
+    }
+
+    renderizar();
+  }
+
+  // ── FILTRAR POR SUBCATEGORIA ─────────────────────────────
+  function filtrarSubcat(sub, btnClicado) {
+    subcatAtiva = sub;
+    document.querySelectorAll('.filtros-subcats .btn-filtro').forEach(b => b.classList.remove('ativo'));
+    btnClicado.classList.add('ativo');
+    renderizar();
+  }
+
+  // ── RENDERIZAR PRODUTOS ──────────────────────────────────
+  function renderizar(listaOverride = null) {
+    const grid      = document.getElementById('grid-produtos');
+    const subtitulo = document.getElementById('subtitulo-contagem');
+
+    let lista = listaOverride ?? todosProdutos;
+
+    // Filtro categoria
+    if (catAtiva && !listaOverride) {
+      lista = lista.filter(p =>
+        p.subcategorias?.categorias?.id === catAtiva.id
+      );
+    }
+
+    // Filtro subcategoria
+    if (subcatAtiva && !listaOverride) {
+      lista = lista.filter(p => p.subcategoria_id === subcatAtiva.id);
+    }
+
+    subtitulo.textContent = `${lista.length} perfume${lista.length !== 1 ? 's' : ''} disponíve${lista.length !== 1 ? 'is' : 'l'}`;
+
+    if (lista.length === 0) {
+      grid.innerHTML = '<div class="grid-status"><p>Nenhum produto encontrado.</p></div>';
+      return;
+    }
+
+    const waBase = 'https://wa.me/5599999999999?text=';
+    grid.innerHTML = lista.map(p => {
+      const precoFmt = 'R$ ' + Number(p.preco).toFixed(2).replace('.', ',');
+      const waLink   = waBase + encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`);
+      const catNome  = p.subcategorias?.categorias?.nome || '';
+      const subNome  = p.subcategorias?.nome || '';
+
+      return `
+        <div class="card">
+          <div class="card-img-wrap">
+            <div class="card-badges">
+              ${catNome ? `<span class="card-badge">${catNome}</span>` : ''}
+              ${subNome ? `<span class="card-badge sub">${subNome}</span>` : ''}
+            </div>
+            <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
+          </div>
+          <div class="card-info">
+            <h3>${p.nome}</h3>
+            <p class="desc">${p.descricao || ''}</p>
+          </div>
+          <div class="preco-row">
+            <span class="preco">${precoFmt}</span>
+            <button class="btn-fav" id="fav-${p.id}" onclick="toggleFav(this,${p.id})" title="Favoritar">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <a href="${waLink}" class="card-comprar" target="_blank" rel="noopener noreferrer">
+            Comprar via WhatsApp
+          </a>
+        </div>`;
+    }).join('');
+
+    marcarFavoritos();
+  }
+
+  // ── BUSCA ────────────────────────────────────────────────
+  function iniciarBusca() {
+    const input   = document.getElementById('input-busca');
+    const results = document.getElementById('search-results');
+    let timer;
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+
+      if (!q) { results.classList.remove('visivel'); results.innerHTML = ''; return; }
+
+      timer = setTimeout(() => {
+        const encontrados = todosProdutos.filter(p =>
+          p.nome.toLowerCase().includes(q.toLowerCase()) ||
+          (p.descricao || '').toLowerCase().includes(q.toLowerCase())
+        );
+
+        if (encontrados.length === 0) {
+          results.innerHTML = '<p class="search-vazio">Nenhum perfume encontrado</p>';
+        } else {
+          results.innerHTML = encontrados.slice(0, 6).map(p => {
+            const waLink = `https://wa.me/5599999999999?text=${encodeURIComponent(`Olá! Tenho interesse no perfume ${p.nome}.`)}`;
+            return `
+              <a class="search-result-item" href="${waLink}" target="_blank" rel="noopener noreferrer">
+                <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
+                <div class="search-result-info">
+                  <div class="search-result-nome">${p.nome}</div>
+                  <div class="search-result-sub">${p.subcategorias?.nome || ''}</div>
+                  <div class="search-result-preco">R$ ${Number(p.preco).toFixed(2).replace('.', ',')}</div>
+                </div>
+              </a>`;
+          }).join('');
+        }
+
+        results.classList.add('visivel');
+      }, 250);
+    });
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.header-search')) {
+        results.classList.remove('visivel');
+        results.innerHTML = '';
+      }
+    });
+
+    // Enter rola para os resultados na grade
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const q = input.value.trim();
+        if (!q) return;
+        results.classList.remove('visivel');
+        const filtrados = todosProdutos.filter(p =>
+          p.nome.toLowerCase().includes(q.toLowerCase()) ||
+          (p.descricao || '').toLowerCase().includes(q.toLowerCase())
+        );
+        // Reseta filtros de categoria e mostra resultado
+        catAtiva = null; subcatAtiva = null;
+        document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+        document.querySelector('.filtros-cats .btn-filtro').classList.add('ativo');
+        document.getElementById('filtros-subcats').innerHTML = '';
+        renderizar(filtrados);
+        document.querySelector('.produtos').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  init();
+</script>
+
 </body>
 </html>

@@ -1,358 +1,303 @@
-/* ===================== FONTES ===================== */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
 
-/* ===================== VARIÁVEIS ===================== */
 :root {
-  --gold: #c9a84c;
-  --gold-light: #e2c97e;
-  --gold-dark: #a8863a;
-  --gold-dim: rgba(201,168,76,0.08);
-  --bg: #0a0a0a;
-  --bg-card: #111;
-  --bg-card-hover: #161616;
-  --border: rgba(201,168,76,0.15);
-  --text: #e8dcc8;
-  --muted: rgba(232,220,200,0.45);
-  --white: #fff;
+  --gold:     #c9a84c;
+  --gold-lt:  #e2c97e;
+  --gold-dim: rgba(201,168,76,0.09);
+  --bg:       #080808;
+  --bg2:      #0f0f0f;
+  --card:     #111111;
+  --border:   rgba(201,168,76,0.13);
+  --border2:  rgba(255,255,255,0.05);
+  --text:     #ede0c8;
+  --muted:    rgba(237,224,200,0.42);
+  --muted2:   rgba(237,224,200,0.2);
+  --white:    #ffffff;
 }
 
-/* ===================== RESET ===================== */
-*, *::before, *::after {
-  margin: 0; padding: 0; box-sizing: border-box;
-}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Jost',sans-serif; font-weight:300; -webkit-font-smoothing:antialiased; }
 
-/* ===================== BODY ===================== */
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Jost', sans-serif;
-  font-weight: 300;
-}
-
-/* ===================== HEADER ===================== */
+/* ── HEADER ── */
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 60px;
-  background: rgba(10,10,10,0.95);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-}
-
-.logo a {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px; font-weight: 400;
-  color: var(--gold); text-decoration: none;
-  letter-spacing: 3px; text-transform: uppercase;
-}
-
-.menu { display: flex; align-items: center; gap: 8px; }
-
-.menu a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  transition: color 0.25s;
-  position: relative;
-}
-
-.menu a::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 12px; right: 12px;
-  height: 1px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transition: transform 0.25s;
-}
-
-.menu a:hover { color: var(--gold); }
-.menu a:hover::after { transform: scaleX(1); }
-
-/* Link de entrar destacado */
-.menu a.link-entrar {
-  border: 1px solid var(--border);
-  color: var(--gold);
-  padding: 6px 16px;
-}
-.menu a.link-entrar::after { display: none; }
-.menu a.link-entrar:hover { background: var(--gold-dim); border-color: var(--gold); }
-
-/* ===================== BANNER ===================== */
-.banner {
-  height: 480px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.banner::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 100%);
-}
-
-.conteudo-banner {
-  position: relative; z-index: 1;
-  color: var(--white);
-}
-
-.conteudo-banner h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 52px; font-weight: 300;
-  color: var(--white);
-  letter-spacing: 4px;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-}
-
-.conteudo-banner p {
-  font-size: 14px; letter-spacing: 3px;
-  text-transform: uppercase; color: rgba(255,255,255,0.75);
-  margin-top: 10px;
-}
-
-/* Botão banner */
-.btn-banner {
-  display: inline-block;
-  margin-top: 28px;
-  padding: 14px 36px;
-  background: var(--gold);
-  color: #0a0a0a;
-  text-decoration: none;
-  font-family: 'Jost', sans-serif;
-  font-size: 11px; font-weight: 500;
-  letter-spacing: 3px; text-transform: uppercase;
-  transition: background 0.25s, transform 0.15s;
-}
-
-.btn-banner:hover { background: var(--gold-light); transform: translateY(-2px); }
-
-/* ===================== PRODUTOS ===================== */
-.produtos { padding: 60px; }
-
-.produtos > h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 28px; font-weight: 300;
-  color: var(--gold);
-  letter-spacing: 3px; text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.produtos > .subtitulo-secao {
-  font-size: 12px; color: var(--muted);
-  letter-spacing: 2px; margin-bottom: 36px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0 48px; height:68px;
+  background:rgba(8,8,8,0.96); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   gap: 24px;
 }
-
-/* Card */
-.card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.04);
-  overflow: hidden;
-  transition: border-color 0.3s, transform 0.3s;
-  position: relative;
-}
-
-.card:hover {
-  border-color: var(--border);
-  transform: translateY(-6px);
-}
-
-.card img {
-  width: 100%; height: 260px;
-  object-fit: contain;
-  background: #0f0f0f;
-  padding: 16px;
-  display: block;
-}
-
-.card h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 20px; font-weight: 400;
-  color: var(--white);
-  padding: 12px 16px 4px;
-  letter-spacing: 1px;
-}
-
-.card .desc {
-  font-size: 12px; color: var(--muted);
-  padding: 0 16px 8px;
-  letter-spacing: 1px;
-}
-
-/* Linha preço + coração lado a lado */
-.card .preco-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px 16px;
-}
-
-.card .preco {
-  font-size: 17px;
-  color: var(--gold);
-  font-weight: 500;
-}
-
-/* Garantir que btn-fav NUNCA herde estilo de botão do card */
-.card .btn-fav,
-.card .preco-row .btn-fav {
-  display: flex !important;
-  width: auto !important;
-  margin: 0 !important;
-  padding: 4px !important;
-  background: none !important;
-  border: none !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: inherit !important;
-}
-
-.card a button,
-.card .btn-comprar {
-  display: block;
-  width: calc(100% - 32px);
-  margin: 0 16px 12px;
-  padding: 12px;
-  background: var(--gold);
-  border: none;
-  color: #0a0a0a;
-  font-family: 'Jost', sans-serif;
-  font-size: 11px; font-weight: 500;
-  letter-spacing: 3px; text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.25s;
-}
-
-.card a button:hover,
-.card .btn-comprar:hover { background: var(--gold-light); }
-
-/* ── BOTÃO FAVORITAR (coração SVG) ── */
-.btn-fav {
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-fav:hover { transform: scale(1.2); }
-
-.btn-fav svg {
-  width: 16px; height: 16px;
-  stroke: var(--gold);
-  fill: none;
-  transition: fill 0.25s, stroke 0.25s;
-  stroke-width: 1.8;
-}
-
-/* Quando favoritado */
-.btn-fav.favoritado svg {
-  fill: var(--gold);
-  stroke: var(--gold);
-}
-
-/* Animação ao favoritar */
-@keyframes heartPop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.4); }
-  70%  { transform: scale(0.9); }
-  100% { transform: scale(1); }
-}
-.btn-fav.pop { animation: heartPop 0.4s ease both; }
-
-/* ===================== TOAST ===================== */
-#toast {
-  position: fixed;
-  bottom: 32px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--gold);
-  color: #0a0a0a;
-  padding: 12px 28px;
-  font-family: 'Jost', sans-serif;
-  font-size: 12px; font-weight: 500;
-  letter-spacing: 2px; text-transform: uppercase;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  z-index: 999;
-  opacity: 0;
-  transition: opacity 0.35s;
-  pointer-events: none;
+.logo a {
+  font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:400;
+  color:var(--gold); text-decoration:none; letter-spacing:5px; text-transform:uppercase;
   white-space: nowrap;
 }
-
-/* ===================== BANNER IMAGES ===================== */
-.banner-inicial   { background-image: url("Inicio.png"); }
-.banner-feminino  { background-image: url("Feminino.png"); }
-.banner-masculino { background-image: url("Masculino.png"); }
-.banner-kits      { background-image: url("Kits.png"); }
-.banner-sobre     { background-image: url("Sobrenos.png"); }
-
-/* ===================== TAG DONA ===================== */
-.tag-dona {
-  position: absolute; left: 48px; bottom: 48px; z-index: 2;
-  background: rgba(0,0,0,0.55);
-  border-left: 2px solid var(--gold);
-  padding: 12px 20px;
-  backdrop-filter: blur(6px);
+.menu { display:flex; align-items:center; gap:2px; flex-shrink: 0; }
+.menu a {
+  color:var(--muted); text-decoration:none; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; padding:8px 12px;
+  transition:color .2s; position:relative; white-space:nowrap;
 }
-.tag-dona p { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
-.tag-dona strong { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold); font-weight: 400; }
-
-/* ===================== SOBRE NÓS ===================== */
-.info-card .conteudo-texto { padding: 36px; }
-.info-card h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 26px; font-weight: 400;
-  color: var(--gold); margin-bottom: 16px; letter-spacing: 2px;
+.menu a::after {
+  content:''; position:absolute; bottom:4px; left:12px; right:12px;
+  height:1px; background:var(--gold); transform:scaleX(0);
+  transform-origin:left; transition:transform .25s ease;
 }
-.info-card p { color: var(--muted); margin-bottom: 10px; line-height: 1.8; font-size: 15px; }
-.info-card.text-center .conteudo-texto { text-align: center; }
-
-.frase-final {
-  padding: 60px 20px; text-align: center;
-  border-top: 1px solid var(--border);
+.menu a:hover { color:var(--text); }
+.menu a:hover::after { transform:scaleX(1); }
+.menu a.link-entrar {
+  color:var(--gold); border:1px solid var(--border); padding:7px 16px; margin-left:6px;
+  transition:background .2s, border-color .2s;
 }
-.frase-final h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px; font-weight: 300;
-  color: var(--gold); font-style: italic; letter-spacing: 2px;
+.menu a.link-entrar::after { display:none; }
+.menu a.link-entrar:hover { background:var(--gold-dim); border-color:var(--gold); }
+
+/* ── BUSCA NO HEADER ── */
+.header-search {
+  flex: 1;
+  max-width: 280px;
+  position: relative;
+}
+.header-search input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  padding: 8px 36px 8px 14px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .25s, background .25s;
+  letter-spacing: 1px;
+}
+.header-search input::placeholder { color: var(--muted2); }
+.header-search input:focus {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+.header-search .search-icon {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.4;
+}
+.header-search .search-icon svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:2; }
+
+/* Resultado de busca dropdown */
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  background: #161616;
+  border: 1px solid var(--border);
+  z-index: 200;
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+}
+.search-results.visivel { display: block; }
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border2);
+  transition: background .2s;
+  text-decoration: none;
+}
+.search-result-item:hover { background: rgba(201,168,76,0.06); }
+.search-result-item img {
+  width: 36px; height: 36px;
+  object-fit: contain; background: var(--bg2); padding: 4px; flex-shrink: 0;
+}
+.search-result-info { min-width: 0; }
+.search-result-nome { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-result-sub  { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+.search-result-preco { font-size: 12px; color: var(--gold); margin-top: 2px; }
+.search-vazio { padding: 20px; text-align: center; font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+/* ── BANNER ── */
+.banner {
+  height:500px; display:flex; justify-content:center; align-items:center;
+  text-align:center; background-size:cover; background-position:center;
+  position:relative; overflow:hidden;
+}
+.banner::before {
+  content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(160deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 50%,rgba(0,0,0,.65) 100%);
+}
+.banner::after {
+  content:''; position:absolute; bottom:0; left:10%; right:10%;
+  height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); z-index:2;
+}
+.conteudo-banner { position:relative; z-index:3; color:var(--white); padding:0 20px; }
+.conteudo-banner h2 {
+  font-family:'Cormorant Garamond',serif; font-size:54px; font-weight:300;
+  letter-spacing:5px; line-height:1.1; text-shadow:0 4px 30px rgba(0,0,0,.4);
+}
+.conteudo-banner p { font-size:12px; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:14px; }
+.btn-banner {
+  display:inline-block; margin-top:32px; padding:14px 40px;
+  background:transparent; color:var(--white); text-decoration:none;
+  font-family:'Jost',sans-serif; font-size:10px; font-weight:500;
+  letter-spacing:4px; text-transform:uppercase; border:1px solid rgba(255,255,255,.45);
+  transition:background .3s, border-color .3s, color .3s, transform .2s;
+}
+.btn-banner:hover { background:var(--gold); border-color:var(--gold); color:#080808; transform:translateY(-2px); }
+
+/* ── PRODUTOS ── */
+.produtos { padding:64px 48px; }
+.secao-header {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid var(--border);
+  flex-wrap: wrap; gap: 16px;
+}
+.secao-header-left h2 {
+  font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:300;
+  color:var(--gold); letter-spacing:3px; text-transform:uppercase;
+}
+.secao-header-left p { font-size:11px; color:var(--muted); letter-spacing:2px; margin-top:5px; }
+
+/* ── FILTROS DOIS NÍVEIS ── */
+.filtros-wrap { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+
+.filtros-cats { display:flex; gap:6px; flex-wrap:wrap; justify-content: flex-end; }
+.filtros-subcats { display:flex; gap:6px; flex-wrap:wrap; justify-content: flex-end; min-height: 30px; }
+
+.btn-filtro {
+  background:none; border:1px solid var(--border2); color:var(--muted);
+  padding:6px 14px; font-family:'Jost',sans-serif; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.2s;
+}
+.btn-filtro:hover, .btn-filtro.ativo { border-color:var(--gold); color:var(--gold); background:var(--gold-dim); }
+
+/* Subcategoria tem visual levemente diferente */
+.btn-filtro.subcat {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  border-style: dashed;
 }
 
-/* ===================== RESPONSIVO ===================== */
-@media (max-width: 768px) {
-  header { padding: 16px 20px; }
-  .menu { gap: 0; }
-  .menu a { padding: 6px 8px; font-size: 10px; }
-  .produtos { padding: 40px 20px; }
-  .conteudo-banner h2 { font-size: 32px; }
+/* ── GRID & CARD ── */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
+.grid-status { grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--muted2); }
+.grid-status p { font-size:15px; letter-spacing:1px; }
+
+.card {
+  background:var(--card); border:1px solid var(--border2); overflow:hidden;
+  transition:border-color .35s, transform .35s, box-shadow .35s;
+}
+.card:hover {
+  border-color:var(--border); transform:translateY(-8px);
+  box-shadow:0 24px 48px rgba(0,0,0,.45), 0 0 0 1px var(--border);
+}
+.card-img-wrap { position:relative; overflow:hidden; }
+.card img {
+  width:100%; height:260px; object-fit:contain;
+  background:var(--bg2); padding:20px; display:block;
+  transition:transform .5s ease;
+}
+.card:hover img { transform:scale(1.04); }
+
+/* Badge duplo: categoria / subcategoria */
+.card-badges {
+  position:absolute; top:12px; left:12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.card-badge {
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--gold); background:rgba(8,8,8,.85);
+  border:1px solid var(--border); padding:3px 9px;
+  backdrop-filter:blur(4px); pointer-events:none; display:inline-block;
+}
+.card-badge.sub { color: var(--muted); border-color: var(--border2); font-size: 8px; }
+
+.card-info { padding:16px 20px 0; }
+.card h3 { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:400; color:var(--white); letter-spacing:1px; line-height:1.2; }
+.card .desc { font-size:12px; color:var(--muted); letter-spacing:1px; margin-top:4px; line-height:1.5; }
+
+.preco-row { display:flex; align-items:center; justify-content:space-between; padding:12px 20px 12px; }
+.preco { font-size:18px; color:var(--gold); font-weight:500; letter-spacing:1px; }
+
+/* ── BOTÃO FAVORITAR ── */
+.btn-fav {
+  background:none !important; border:none !important;
+  padding:5px !important; margin:0 !important; width:auto !important;
+  cursor:pointer; display:flex !important; align-items:center; justify-content:center;
+  transition:transform .2s !important; flex-shrink:0;
+  letter-spacing:0 !important; text-transform:none !important; color:inherit !important;
+}
+.btn-fav:hover { transform:scale(1.25) !important; }
+.btn-fav svg { width:18px; height:18px; stroke:var(--gold); fill:none; stroke-width:1.7; transition:fill .2s, stroke .2s; pointer-events:none; }
+.btn-fav.favoritado svg { fill:var(--gold); stroke:var(--gold); }
+@keyframes heartPop { 0%{transform:scale(1)} 35%{transform:scale(1.55)} 65%{transform:scale(.88)} 100%{transform:scale(1)} }
+.btn-fav.pop { animation:heartPop .38s ease both; }
+
+/* ── BOTÃO COMPRAR ── */
+.card-comprar {
+  display:block; width:calc(100% - 40px); margin:0 20px 20px;
+  padding:13px; background:transparent; border:1px solid var(--border);
+  color:var(--gold); font-family:'Jost',sans-serif; font-size:10px;
+  font-weight:500; letter-spacing:3px; text-transform:uppercase;
+  text-align:center; text-decoration:none; cursor:pointer;
+  transition:background .25s, border-color .25s, color .25s;
+}
+.card-comprar:hover { background:var(--gold); border-color:var(--gold); color:#080808; }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+  background:var(--gold); color:#080808; padding:12px 32px;
+  font-family:'Jost',sans-serif; font-size:10px; font-weight:500;
+  letter-spacing:3px; text-transform:uppercase; z-index:999;
+  opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap;
 }
 
-/* Coração favoritado — preenche o SVG inline */
-.btn-fav.favoritado svg {
-  fill: #c9a84c;
-  stroke: #c9a84c;
+/* ── BANNERS ── */
+.banner-inicial   { background-image:url("Inicio.png"); }
+.banner-feminino  { background-image:url("Feminino.png"); }
+.banner-masculino { background-image:url("Masculino.png"); }
+.banner-kits      { background-image:url("Kits.png"); }
+.banner-sobre     { background-image:url("Sobrenos.png"); }
+
+/* ── TAG DONA ── */
+.tag-dona { position:absolute; left:48px; bottom:48px; z-index:4; background:rgba(0,0,0,.62); border-left:2px solid var(--gold); padding:12px 20px; backdrop-filter:blur(8px); }
+.tag-dona p { font-size:10px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; }
+.tag-dona strong { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--gold); font-weight:400; }
+
+/* ── SOBRE NÓS ── */
+.info-card .conteudo-texto { padding:40px; }
+.info-card h3 { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:400; color:var(--gold); margin-bottom:16px; letter-spacing:2px; }
+.info-card p { color:var(--muted); margin-bottom:12px; line-height:1.9; font-size:15px; }
+.info-card.text-center .conteudo-texto { text-align:center; }
+.info-card button, .info-card a button {
+  display:inline-block; margin-top:16px; padding:13px 32px;
+  background:transparent; border:1px solid var(--border); color:var(--gold);
+  font-family:'Jost',sans-serif; font-size:10px; font-weight:500;
+  letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:.25s;
+}
+.info-card button:hover, .info-card a button:hover { background:var(--gold); color:#080808; border-color:var(--gold); }
+.frase-final { padding:80px 20px; text-align:center; background:var(--bg2); border-top:1px solid var(--border); }
+.frase-final h2 { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; color:var(--gold); font-style:italic; letter-spacing:2px; }
+
+/* ── FOOTER ── */
+footer { background:var(--bg2); border-top:1px solid var(--border); padding:28px 48px; display:flex; justify-content:space-between; align-items:center; }
+footer p { font-size:11px; color:var(--muted2); letter-spacing:1px; }
+footer .logo-footer { font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--gold); letter-spacing:4px; text-transform:uppercase; }
+
+/* ── RESPONSIVO ── */
+@media (max-width:900px) {
+  header { padding:0 16px; gap:12px; }
+  .menu a { padding:6px 8px; font-size:9px; }
+  .header-search { max-width: 160px; }
+  .produtos { padding:40px 20px; }
+  .secao-header { flex-direction:column; align-items:flex-start; }
+  .filtros-wrap { align-items: flex-start; }
+  .filtros-cats, .filtros-subcats { justify-content: flex-start; }
+  .conteudo-banner h2 { font-size:34px; }
+  footer { padding:24px 20px; flex-direction:column; gap:8px; text-align:center; }
 }
