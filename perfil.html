@@ -70,13 +70,10 @@
 <script src="favoritar.js"></script>
 
 <script>
-  const dadosRaw = localStorage.getItem('liberty_sessao');
-  if (!dadosRaw) { window.location.replace('login-cliente.html'); }
-  const usuario = JSON.parse(dadosRaw);
+  // usuario já foi declarado no favoritar.js
+  if (!usuario) { window.location.replace('login-cliente.html'); }
   if (usuario.admin) { window.location.replace('admin.html'); }
 
-  const linkAcesso = document.getElementById('link-acesso');
-  if (linkAcesso) { linkAcesso.textContent = usuario.nome.split(' ')[0]; linkAcesso.href = 'perfil.html'; }
   document.getElementById('titulo-perfil').textContent    = `Olá, ${usuario.nome.split(' ')[0]}`;
   document.getElementById('subtitulo-perfil').textContent = usuario.email;
 
