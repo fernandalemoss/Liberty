@@ -185,7 +185,7 @@
 
       return `
         <div class="card">
-          <div class="card-img-wrap">
+          <div class="card-img-wrap" style="cursor:pointer" style="cursor:pointer">
             <div class="card-badges">
               ${catNome ? `<span class="card-badge">${catNome}</span>` : ''}
               ${subNome ? `<span class="card-badge sub">${subNome}</span>` : ''}
@@ -202,9 +202,7 @@
               <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
           </div>
-          <a href="${waLink}" class="card-comprar" target="_blank" rel="noopener noreferrer">
-            Comprar via WhatsApp
-          </a>
+          <button class="card-comprar" onclick="abrirModal(${p.id})">Ver detalhes</button>
         </div>`;
     }).join('');
 
@@ -282,5 +280,6 @@
   init();
 </script>
 
+<script src="produto-modal.js"></script>
 </body>
 </html>

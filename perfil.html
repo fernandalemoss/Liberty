@@ -8,48 +8,118 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <style>
+    /* HERO */
     .perfil-hero {
-      padding: 48px 48px 24px;
-      border-bottom: 1px solid rgba(201,168,76,0.12);
-      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 48px 48px 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
     }
-    .perfil-hero h2 { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300; color:#c9a84c; letter-spacing:2px; }
-    .perfil-hero p  { font-size:12px; color:rgba(237,224,200,0.4); margin-top:4px; letter-spacing:1px; }
-    .btn-sair { background:transparent; border:1px solid rgba(201,168,76,0.25); color:rgba(201,168,76,0.7); padding:8px 18px; font-family:'Jost',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.25s; }
+    .perfil-hero h2 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:32px; font-weight:300; color:#c9a84c; letter-spacing:2px;
+    }
+    .perfil-hero p { font-size:12px; color:rgba(237,224,200,0.4); margin-top:4px; letter-spacing:1px; }
+    .btn-sair {
+      background:transparent; border:1px solid rgba(201,168,76,0.25);
+      color:rgba(201,168,76,0.7); padding:8px 18px;
+      font-family:'Jost',sans-serif; font-size:10px;
+      letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.25s;
+    }
     .btn-sair:hover { border-color:#c9a84c; color:#c9a84c; }
-    .perfil-body { padding:36px 48px; }
-    .secao-titulo { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:rgba(237,224,200,0.5); letter-spacing:3px; text-transform:uppercase; margin-bottom:24px; padding-bottom:12px; border-bottom:1px solid rgba(201,168,76,0.08); }
+
+    /* ABAS */
+    .perfil-abas {
+      display: flex; gap: 0;
+      padding: 24px 48px 0;
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+    }
+    .perfil-aba {
+      background: none; border: none;
+      padding: 12px 24px;
+      font-family: 'Jost', sans-serif; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(237,224,200,0.4); cursor: pointer;
+      position: relative; transition: color .2s;
+    }
+    .perfil-aba::after {
+      content: ''; position: absolute;
+      bottom: -1px; left: 0; right: 0; height: 1px;
+      background: #c9a84c; transform: scaleX(0); transition: transform .25s;
+    }
+    .perfil-aba.ativa { color: #c9a84c; }
+    .perfil-aba.ativa::after { transform: scaleX(1); }
+
+    /* CONTEÚDO DAS ABAS */
+    .perfil-tab { display: none; padding: 36px 48px; }
+    .perfil-tab.ativa { display: block; }
+
+    /* FAVORITOS */
     .contador { font-size:11px; color:rgba(201,168,76,0.55); letter-spacing:2px; margin-bottom:20px; }
     .vazio { grid-column:1/-1; text-align:center; padding:80px 20px; color:rgba(237,224,200,0.25); }
     .vazio svg { width:40px; height:40px; margin:0 auto 16px; display:block; }
     .vazio p { font-size:15px; margin-bottom:12px; letter-spacing:1px; }
     .vazio a { color:#c9a84c; text-decoration:none; font-size:12px; letter-spacing:2px; }
-    .btn-remover { display:flex; align-items:center; justify-content:center; gap:6px; background:transparent; border:1px solid rgba(237,224,200,0.07); color:rgba(237,224,200,0.28); padding:10px; width:calc(100% - 40px); margin:0 20px 12px; font-family:'Jost',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.25s; }
+    .btn-remover {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      background:transparent; border:1px solid rgba(237,224,200,0.07);
+      color:rgba(237,224,200,0.28); padding:10px;
+      width:calc(100% - 40px); margin:0 20px 12px;
+      font-family:'Jost',sans-serif; font-size:10px;
+      letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:.25s;
+    }
     .btn-remover:hover { border-color:rgba(220,60,60,0.35); color:#e07070; }
     .erro-msg { grid-column:1/-1; text-align:center; padding:40px; color:#e07070; font-size:13px; }
+
+    /* EDITAR PERFIL */
+    .editar-wrap { max-width: 480px; }
+    .editar-titulo {
+      font-family:'Cormorant Garamond',serif;
+      font-size:22px; font-weight:300; color:#c9a84c;
+      letter-spacing:2px; margin-bottom:28px;
+    }
+    .campo { margin-bottom:18px; }
+    .campo label {
+      display:block; font-size:10px; letter-spacing:2px;
+      text-transform:uppercase; color:rgba(237,224,200,0.4); margin-bottom:7px;
+    }
+    .campo input {
+      width:100%; background:rgba(255,255,255,0.02);
+      border:1px solid rgba(201,168,76,0.15);
+      padding:11px 14px; font-family:'Jost',sans-serif;
+      font-size:14px; color:#ede0c8; outline:none;
+      transition:border-color .2s, background .2s;
+    }
+    .campo input:focus { border-color:#c9a84c; background:rgba(201,168,76,0.06); }
+    .campo input::placeholder { color:rgba(237,224,200,0.2); }
+    .campo input:disabled { opacity:0.4; cursor:not-allowed; }
+    .sep {
+      border:none; border-top:1px solid rgba(201,168,76,0.08);
+      margin:28px 0;
+    }
+    .btn-salvar-perfil {
+      padding:13px 32px; background:#c9a84c; border:none;
+      font-family:'Jost',sans-serif; font-size:10px; font-weight:500;
+      letter-spacing:3px; text-transform:uppercase; color:#080808;
+      cursor:pointer; transition:background .2s;
+    }
+    .btn-salvar-perfil:hover { background:#e2c97e; }
+    .btn-salvar-perfil:disabled { opacity:0.5; pointer-events:none; }
+    .msg-perfil {
+      font-size:12px; padding:10px 14px; margin-top:16px; display:none;
+    }
+    .msg-perfil.ok   { background:rgba(80,180,100,0.08); border:1px solid rgba(80,180,100,0.25); color:#70c880; display:block; }
+    .msg-perfil.erro { background:rgba(220,60,60,0.08); border:1px solid rgba(220,60,60,0.25); color:#e07070; display:block; }
+    .info-senha {
+      font-size:11px; color:rgba(237,224,200,0.3);
+      letter-spacing:1px; margin-top:6px;
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo"><a href="index.html">Liberty Perfumaria</a></div>
-  <div class="header-search">
-    <input type="text" id="input-busca" placeholder="Buscar perfume..." autocomplete="off">
-    <span class="search-icon">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    </span>
-    <div class="search-results" id="search-results"></div>
-  </div>
-  <nav class="menu">
-    <a href="index.html">Início</a>
-    <a href="feminino.html">Feminino</a>
-    <a href="masculino.html">Masculino</a>
-    <a href="kits.html">Kits</a>
-    <a href="sobrenos.html">Sobre Nós</a>
-    <a id="link-acesso" href="login-cliente.html" class="link-entrar">Entrar</a>
-  </nav>
-</header>
+<div id="header-root"></div>
+<script src="header.js"></script>
 
+<!-- HERO -->
 <div class="perfil-hero">
   <div>
     <h2 id="titulo-perfil">Meu Perfil</h2>
@@ -58,31 +128,89 @@
   <button class="btn-sair" onclick="sair()">Sair</button>
 </div>
 
-<section class="perfil-body">
-  <p class="secao-titulo">Favoritos</p>
+<!-- ABAS -->
+<div class="perfil-abas">
+  <button class="perfil-aba ativa" onclick="trocarAba('favoritos', this)">Favoritos</button>
+  <button class="perfil-aba" onclick="trocarAba('editar', this)">Editar Perfil</button>
+</div>
+
+<!-- ABA FAVORITOS -->
+<div class="perfil-tab ativa" id="tab-favoritos">
   <p class="contador" id="contador"></p>
   <div class="grid" id="lista-favoritos">
     <p style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(237,224,200,0.3)">Carregando...</p>
   </div>
-</section>
+</div>
+
+<!-- ABA EDITAR PERFIL -->
+<div class="perfil-tab" id="tab-editar">
+  <div class="editar-wrap">
+
+    <p class="editar-titulo">Dados pessoais</p>
+
+    <div class="campo">
+      <label>Nome</label>
+      <input type="text" id="edit-nome" placeholder="Seu nome completo">
+    </div>
+    <div class="campo">
+      <label>Email</label>
+      <input type="email" id="edit-email" disabled>
+      <p class="info-senha">O email não pode ser alterado.</p>
+    </div>
+
+    <hr class="sep">
+    <p class="editar-titulo">Alterar senha</p>
+
+    <div class="campo">
+      <label>Senha atual</label>
+      <input type="password" id="edit-senha-atual" placeholder="••••••••">
+    </div>
+    <div class="campo">
+      <label>Nova senha</label>
+      <input type="password" id="edit-senha-nova" placeholder="Mínimo 6 caracteres">
+    </div>
+    <div class="campo">
+      <label>Confirmar nova senha</label>
+      <input type="password" id="edit-senha-conf" placeholder="Repita a nova senha">
+    </div>
+
+    <button class="btn-salvar-perfil" id="btn-salvar" onclick="salvarPerfil()">
+      Salvar alterações
+    </button>
+    <div class="msg-perfil" id="msg-perfil"></div>
+
+  </div>
+</div>
 
 <div id="toast"></div>
 <script src="favoritar.js"></script>
 
 <script>
-  // usuario já foi declarado no favoritar.js
+  // usuario já declarado no favoritar.js
   if (!usuario) { window.location.replace('login-cliente.html'); }
   if (usuario.admin) { window.location.replace('admin.html'); }
 
   document.getElementById('titulo-perfil').textContent    = `Olá, ${usuario.nome.split(' ')[0]}`;
   document.getElementById('subtitulo-perfil').textContent = usuario.email;
 
+  // Preenche campos do formulário
+  document.getElementById('edit-nome').value  = usuario.nome;
+  document.getElementById('edit-email').value = usuario.email;
+
+  // ── ABAS ─────────────────────────────────────────────────
+  function trocarAba(aba, btn) {
+    document.querySelectorAll('.perfil-aba').forEach(b => b.classList.remove('ativa'));
+    document.querySelectorAll('.perfil-tab').forEach(t => t.classList.remove('ativa'));
+    btn.classList.add('ativa');
+    document.getElementById('tab-' + aba).classList.add('ativa');
+  }
+
+  // ── CARREGAR FAVORITOS ───────────────────────────────────
   async function carregarFavoritos() {
     const container = document.getElementById('lista-favoritos');
     const contador  = document.getElementById('contador');
 
     try {
-      // 1. Busca favoritos do usuário
       const { data: favs, error: e1 } = await db
         .from('favoritos')
         .select('id, produto_id, criado_em')
@@ -104,7 +232,6 @@
         return;
       }
 
-      // 2. Busca os produtos pelos IDs dos favoritos
       const ids = favs.map(f => f.produto_id);
       const { data: produtos, error: e2 } = await db
         .from('produtos')
@@ -113,14 +240,12 @@
 
       if (e2) throw e2;
 
-      // 3. Monta mapa produto_id → produto
       const mapa = {};
       (produtos || []).forEach(p => { mapa[p.id] = p; });
 
       contador.textContent = `${favs.length} perfume${favs.length > 1 ? 's' : ''} salvo${favs.length > 1 ? 's' : ''}`;
 
       const waBase = 'https://wa.me/5599999999999?text=';
-
       container.innerHTML = favs.map(f => {
         const p = mapa[f.produto_id];
         if (!p) return '';
@@ -152,23 +277,82 @@
 
     } catch (err) {
       console.error('Erro:', err);
-      container.innerHTML = `<p class="erro-msg">Erro ao carregar: ${err.message || 'verifique o console.'}</p>`;
+      container.innerHTML = `<p class="erro-msg">Erro ao carregar: ${err.message}</p>`;
     }
   }
 
   async function remover(favId, cardId) {
-    const { error } = await db
-      .from('favoritos').delete()
-      .eq('id', favId)
-      .eq('usuario_id', Number(usuario.id));
-
+    const { error } = await db.from('favoritos').delete()
+      .eq('id', favId).eq('usuario_id', Number(usuario.id));
     if (!error) {
       const card = document.getElementById(cardId);
       if (card) { card.style.opacity = '0'; card.style.transition = '.3s'; }
       setTimeout(carregarFavoritos, 350);
-    } else {
-      mostrarToast('Erro ao remover.');
     }
+  }
+
+  // ── SALVAR PERFIL ─────────────────────────────────────────
+  async function salvarPerfil() {
+    const nome       = document.getElementById('edit-nome').value.trim();
+    const senhaAtual = document.getElementById('edit-senha-atual').value;
+    const senhaNova  = document.getElementById('edit-senha-nova').value;
+    const senhaConf  = document.getElementById('edit-senha-conf').value;
+    const msgEl      = document.getElementById('msg-perfil');
+    const btnEl      = document.getElementById('btn-salvar');
+
+    msgEl.className = 'msg-perfil';
+
+    if (!nome) { msg('Nome não pode estar vazio.', 'erro'); return; }
+
+    // Validação de senha (só se preencheu algum campo)
+    const trocandoSenha = senhaAtual || senhaNova || senhaConf;
+    if (trocandoSenha) {
+      if (!senhaAtual) { msg('Informe sua senha atual.', 'erro'); return; }
+      if (senhaNova.length < 6) { msg('Nova senha deve ter no mínimo 6 caracteres.', 'erro'); return; }
+      if (senhaNova !== senhaConf) { msg('As senhas não coincidem.', 'erro'); return; }
+
+      // Verifica se a senha atual está correta
+      const { data: check } = await db.from('usuarios')
+        .select('id').eq('id', usuario.id).eq('senha', senhaAtual).single();
+      if (!check) { msg('Senha atual incorreta.', 'erro'); return; }
+    }
+
+    btnEl.disabled = true;
+
+    // Monta payload de atualização
+    const payload = { nome };
+    if (trocandoSenha) payload.senha = senhaNova;
+
+    const { error } = await db.from('usuarios')
+      .update(payload)
+      .eq('id', usuario.id);
+
+    btnEl.disabled = false;
+
+    if (error) { msg('Erro ao salvar: ' + error.message, 'erro'); return; }
+
+    // Atualiza sessão local
+    usuario.nome = nome;
+    localStorage.setItem('liberty_sessao', JSON.stringify(usuario));
+
+    // Limpa campos de senha
+    document.getElementById('edit-senha-atual').value = '';
+    document.getElementById('edit-senha-nova').value  = '';
+    document.getElementById('edit-senha-conf').value  = '';
+
+    // Atualiza nome na tela
+    document.getElementById('titulo-perfil').textContent = `Olá, ${nome.split(' ')[0]}`;
+    const la = document.getElementById('link-acesso');
+    if (la) la.textContent = nome.split(' ')[0];
+
+    msg('Perfil atualizado com sucesso!', 'ok');
+  }
+
+  function msg(texto, tipo) {
+    const el = document.getElementById('msg-perfil');
+    el.textContent = texto;
+    el.className = 'msg-perfil ' + tipo;
+    setTimeout(() => { el.className = 'msg-perfil'; }, 4000);
   }
 
   function sair() {

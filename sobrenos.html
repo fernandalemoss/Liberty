@@ -3,119 +3,281 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <link rel="icon" type="image/x-icon" href="scent1_41670.ico">
-  <title>Sobre Nós - Liberty Perfumaria</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>Sobre Nós — Liberty Perfumaria</title>
   <link rel="stylesheet" href="index.css">
-</head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    /* ── HERO SOBRE ── */
+    .sobre-hero {
+      height: 420px;
+      display: flex; align-items: flex-end;
+      background-image: url("Sobrenos.png");
+      background-size: cover; background-position: center;
+      position: relative; overflow: hidden;
+    }
+    .sobre-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.3) 60%, rgba(8,8,8,0.1) 100%);
+    }
+    .sobre-hero-content {
+      position: relative; z-index: 2;
+      padding: 56px 64px;
+    }
+    .sobre-hero-content p {
+      font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 12px; opacity: 0.8;
+    }
+    .sobre-hero-content h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px; font-weight: 300; color: var(--white);
+      letter-spacing: 4px; line-height: 1.1;
+    }
+    .sobre-hero-content h1 span { color: var(--gold); }
 
+    /* ── FUNDADORA ── */
+    .fundadora-tag {
+      position: absolute; right: 64px; bottom: 48px; z-index: 2;
+      border-left: 2px solid var(--gold);
+      padding: 12px 20px;
+      background: rgba(8,8,8,0.6);
+      backdrop-filter: blur(8px);
+    }
+    .fundadora-tag p { font-size: 10px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+    .fundadora-tag strong { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold); font-weight: 400; display: block; margin-top: 4px; }
+
+    /* ── SEÇÕES ── */
+    .sobre-secao {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sobre-secao:last-of-type { border-bottom: none; }
+
+    .sobre-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .sobre-label {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px; opacity: 0.7;
+    }
+    .sobre-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; font-weight: 300; color: var(--white);
+      letter-spacing: 2px; line-height: 1.2; margin-bottom: 24px;
+    }
+    .sobre-titulo span { color: var(--gold); font-style: italic; }
+    .sobre-texto {
+      color: var(--muted); font-size: 15px; line-height: 1.9;
+      margin-bottom: 16px;
+    }
+
+    /* ── DIFERENCIAIS ── */
+    .diferenciais {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .diferencial {
+      background: rgba(201,168,76,0.04);
+      border: 1px solid var(--border);
+      padding: 24px;
+      transition: border-color .3s, background .3s;
+    }
+    .diferencial:hover {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.07);
+    }
+    .diferencial-icone {
+      font-size: 22px; margin-bottom: 12px; display: block;
+    }
+    .diferencial h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 400; color: var(--gold);
+      margin-bottom: 6px; letter-spacing: 1px;
+    }
+    .diferencial p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* ── NÚMEROS ── */
+    .numeros {
+      background: rgba(201,168,76,0.03);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 64px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+    .numero-item {}
+    .numero-valor {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px; font-weight: 300; color: var(--gold);
+      line-height: 1;
+    }
+    .numero-label {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-top: 8px;
+    }
+
+    /* ── CTA ── */
+    .sobre-cta {
+      padding: 80px 64px;
+      text-align: center;
+      background: var(--bg2);
+    }
+    .sobre-cta p {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px; opacity: 0.7;
+    }
+    .sobre-cta h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px; font-weight: 300; color: var(--white);
+      letter-spacing: 3px; margin-bottom: 32px; line-height: 1.2;
+    }
+    .sobre-cta h2 em { color: var(--gold); font-style: italic; }
+    .btn-wa {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 40px; background: var(--gold); border: none;
+      font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; text-transform: uppercase; color: #080808;
+      text-decoration: none; transition: background .25s, transform .2s; cursor: pointer;
+    }
+    .btn-wa:hover { background: var(--gold-lt); transform: translateY(-2px); }
+    .btn-wa svg { width: 18px; height: 18px; fill: #080808; }
+
+    /* ── FRASE FINAL ── */
+    .frase-sobre {
+      padding: 60px 64px; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .frase-sobre blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; font-style: italic;
+      color: var(--gold); letter-spacing: 2px; line-height: 1.5;
+    }
+    .frase-sobre cite {
+      display: block; margin-top: 16px;
+      font-size: 11px; letter-spacing: 2px;
+      color: var(--muted); font-style: normal;
+    }
+
+    /* RESPONSIVO */
+    @media (max-width: 900px) {
+      .sobre-hero { height: 320px; }
+      .sobre-hero-content { padding: 32px 24px; }
+      .sobre-hero-content h1 { font-size: 36px; }
+      .fundadora-tag { right: 24px; bottom: 32px; }
+      .sobre-secao { padding: 48px 24px; }
+      .sobre-grid-2 { grid-template-columns: 1fr; gap: 32px; }
+      .diferenciais { grid-template-columns: 1fr; }
+      .numeros { padding: 48px 24px; grid-template-columns: 1fr; gap: 32px; }
+      .sobre-cta { padding: 48px 24px; }
+      .frase-sobre { padding: 40px 24px; }
+    }
+  </style>
+</head>
 <body>
 
-<header>
-  <div class="logo"><a href="index.html">Liberty Perfumaria✨</a></div>
+<div id="header-root"></div>
+<script src="header.js"></script>
 
-  <nav class="menu">
-    <a href="index.html">Início</a>
-    <a href="feminino.html">Feminino</a>
-    <a href="masculino.html">Masculino</a>
-    <a href="kits.html">Kits</a>
-    <a href="sobrenos.html">Sobre Nós</a>
-  </nav>
-</header>
-
-<!-- BANNER -->
-<section class="banner banner-sobre">
-  <div class="tag-dona">
+<!-- ── HERO ── -->
+<section class="sobre-hero">
+  <div class="sobre-hero-content">
+    <p>Nossa história</p>
+    <h1>Liberty<br><span>Perfumaria</span></h1>
+  </div>
+  <div class="fundadora-tag">
     <p>Fundadora</p>
     <strong>Tatiane Moreira</strong>
   </div>
-
-  <div class="conteudo-banner">
-    <h2>Sobre Nós ✨</h2>
-    <p>Mais que perfumes, entregamos experiências</p>
-    <a href="https://wa.me/5599999999999" class="btn-banner" target="_blank">
-      Falar no WhatsApp
-    </a>
-  </div>
 </section>
 
-<!-- SOBRE NÓS -->
-<section class="produtos sobre-nos-container">
-  <div class="grid">
+<!-- ── NÚMEROS ── -->
+<div class="numeros">
+  <div class="numero-item">
+    <div class="numero-valor">100%</div>
+    <div class="numero-label">Produtos originais</div>
+  </div>
+  <div class="numero-item">
+    <div class="numero-valor">Brasil</div>
+    <div class="numero-label">Entregamos para todo o país</div>
+  </div>
+  <div class="numero-item">
+    <div class="numero-valor">MG</div>
+    <div class="numero-label">Divinópolis, Minas Gerais</div>
+  </div>
+</div>
 
-    <div class="card info-card">
-      <div class="conteudo-texto">
-        <h3>Nossa História</h3>
-        <p>Criamos essa loja com uma ideia simples: oferecer perfumes bons, acessíveis e que realmente marquem presença.</p>
-        <p>Preferimos qualidade ao invés de quantidade, por isso cada perfume aqui tem um propósito.</p>
-        <br>
-        <p>Obrigada por fazer parte disso 🤍</p>
-        <br>
-        <p class="preco">📍 Divinopolis - MG <br>🚚 Entregamos para todo o Brasil</p>
+<!-- ── HISTÓRIA ── -->
+<section class="sobre-secao">
+  <div class="sobre-grid-2">
+    <div>
+      <p class="sobre-label">Quem somos</p>
+      <h2 class="sobre-titulo">Uma loja criada com <span>propósito</span></h2>
+      <p class="sobre-texto">
+        A Liberty Perfumaria nasceu de uma ideia simples: oferecer perfumes bons, acessíveis e que realmente marquem presença. Acreditamos que um bom perfume não precisa custar uma fortuna para ser sofisticado.
+      </p>
+      <p class="sobre-texto">
+        Cada fragrância do nosso catálogo é escolhida com cuidado. Preferimos qualidade à quantidade — por isso, cada perfume aqui tem um propósito e uma história para contar.
+      </p>
+      <p class="sobre-texto">
+        Obrigada por fazer parte disso 🤍
+      </p>
+    </div>
+    <div class="diferenciais">
+      <div class="diferencial">
+        <span class="diferencial-icone">💎</span>
+        <h3>Premium</h3>
+        <p>Produtos selecionados com qualidade garantida e procedência verificada.</p>
+      </div>
+      <div class="diferencial">
+        <span class="diferencial-icone">🚀</span>
+        <h3>Entrega rápida</h3>
+        <p>Enviamos para todo o Brasil com agilidade e cuidado no empacotamento.</p>
+      </div>
+      <div class="diferencial">
+        <span class="diferencial-icone">🔒</span>
+        <h3>Compra segura</h3>
+        <p>Atendimento personalizado e transparência em cada etapa da sua compra.</p>
+      </div>
+      <div class="diferencial">
+        <span class="diferencial-icone">⭐</span>
+        <h3>Alta satisfação</h3>
+        <p>Clientes satisfeitos que voltam e indicam para amigos e família.</p>
       </div>
     </div>
-
-    <div class="card info-card text-center">
-      <div class="conteudo-texto">
-        <h3>Nossos Diferenciais</h3>
-        <p>💎 Produtos Premium</p>
-        <p>🚀 Entrega Rápida</p>
-        <p>🔒 Compra Segura</p>
-        <p>⭐ Alta Satisfação</p>
-        <a href="https://wa.me/5599999999999" target="_blank">
-          <button>Falar no WhatsApp</button>
-        </a>
-      </div>
-    </div>
-
   </div>
 </section>
 
-<!-- PRODUTOS -->
-<section class="produtos">
-  <div class="grid">
-
-    <div class="card">
-      <img src="perfume masculino 1.jpg">
-      <h3>Sabah Al Ward</h3>
-      <p class="desc">floral intenso com fundo quente</p>
-      <p class="preco">R$ 279,99</p>
-      <button>Comprar</button>
-    </div>
-
-    <div class="card">
-      <img src="perfume masculino 2.jpg">
-      <h3>Fakhar Lattafa</h3>
-      <p class="desc">elegante, quente e levemente doce</p>
-      <p class="preco">R$ 279,99</p>
-      <button>Comprar</button>
-    </div>
-
-    <div class="card">
-      <img src="perfume feminino 1.jpg">
-      <h3>Sabah Al Ward</h3>
-      <p class="desc">floral intenso com fundo quente</p>
-      <p class="preco">R$ 279,99</p>
-      <button>Comprar</button>
-    </div>
-
-    <div class="card">
-      <img src="perfume feminino 2.jpg">
-      <h3>Durrat Al Aroos</h3>
-      <p class="desc">floral suave e delicado</p>
-      <p class="preco">R$ 279,99</p>
-      <button>Comprar</button>
-    </div>
-
-  </div>
+<!-- ── CTA ── -->
+<section class="sobre-cta">
+  <p>Vamos conversar</p>
+  <h2>Encontre o perfume<br>perfeito <em>para você</em></h2>
+  <a href="https://wa.me/5599999999999?text=Olá!%20Gostaria%20de%20conhecer%20os%20perfumes%20da%20Liberty."
+     class="btn-wa" target="_blank" rel="noopener noreferrer">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    Falar no WhatsApp
+  </a>
 </section>
 
-<!-- FRASE FINAL -->
-<section class="frase-final">
-  <h2>"O perfume certo marca presença sem dizer uma palavra."</h2>
-</section>
+<!-- ── FRASE FINAL ── -->
+<div class="frase-sobre">
+  <blockquote>"O perfume certo marca presença sem dizer uma palavra."</blockquote>
+  <cite>— Liberty Perfumaria</cite>
+</div>
+
+<footer>
+  <span class="logo-footer">Liberty</span>
+  <p>© 2025 Liberty Perfumaria · Divinópolis, MG</p>
+</footer>
 
 </body>
 </html>

@@ -262,9 +262,19 @@
       <input type="hidden" id="p-imagem-url">
       <img class="img-preview" id="img-preview" src="" alt="Preview">
     </div>
+    <div class="campos-grid">
+      <div class="campo">
+        <label>Desconto (%)</label>
+        <input type="number" id="p-desconto" placeholder="0" min="0" max="100">
+      </div>
+      <div class="campo">
+        <label>Ativo</label>
+        <select id="p-ativo"><option value="true">Sim</option><option value="false">Não</option></select>
+      </div>
+    </div>
     <div class="campo">
-      <label>Ativo</label>
-      <select id="p-ativo"><option value="true">Sim</option><option value="false">Não</option></select>
+      <label>Descrição detalhada</label>
+      <textarea id="p-descricao-longa" rows="3" placeholder="Descrição completa do perfume, notas olfativas, fixação..."></textarea>
     </div>
     <div class="msg-modal" id="msg-produto"></div>
     <div class="modal-footer">
@@ -463,6 +473,8 @@
     document.getElementById('p-sku').value      = p?.sku || '';
     document.getElementById('p-subcat').value   = p?.subcategoria_id || '';
     document.getElementById('p-ativo').value    = p?.ativo !== false ? 'true' : 'false';
+    document.getElementById('p-desconto').value       = p?.desconto ?? 0;
+    document.getElementById('p-descricao-longa').value = p?.descricao_longa || '';
     document.getElementById('p-imagem-url').value = p?.imagem || '';
     document.getElementById('upload-status').textContent = p?.imagem ? 'Imagem já cadastrada' : 'Nenhuma imagem selecionada';
     const prev = document.getElementById('img-preview');
@@ -488,8 +500,10 @@
 
     if (!nome || isNaN(preco)) { msgModal('msg-produto', 'Nome e preço são obrigatórios.', 'erro'); return; }
 
+    const desconto = parseInt(document.getElementById('p-desconto').value) || 0;
+    const descricaoLonga = document.getElementById('p-descricao-longa').value.trim() || null;
     const payload = {
-      nome, descricao, preco, estoque, sku, imagem, ativo,
+      nome, descricao, descricao_longa: descricaoLonga, preco, estoque, sku, imagem, ativo, desconto,
       subcategoria_id: subcatId ? Number(subcatId) : null,
       atualizado_por:  usuario.id
     };

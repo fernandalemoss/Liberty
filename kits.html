@@ -3,52 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kits - Liberty Perfumaria</title>
-  <!-- CSS externo -->
+  <title>Kits — Liberty Perfumaria</title>
   <link rel="stylesheet" href="index.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<header>
-<div class="logo"><a href="index.html">Liberty Perfumaria Kits✨</a></div>
+<div id="header-root"></div>
+<script src="header.js"></script>
 
-  <nav class="menu">
-    <a href="index.html">Início</a>
-    <a href="feminino.html">Feminino</a>
-    <a href="masculino.html">Masculino</a>
-    <a href="kits.html">Kits</a>
-    <a href="sobrenos.html">Sobre Nós</a>
-  </nav>
-</header>
-
-<!-- ===== BANNER KITS ===== -->
 <section class="banner banner-kits">
   <div class="conteudo-banner">
-    <h2>Kits Perfumados ✨</h2>
+    <h2>Kits Perfumados</h2>
     <p>Presentes elegantes para todas as ocasiões</p>
-    <a href="https://wa.me/5599999999999" class="btn-banner">Falar no WhatsApp</a>
+    <a href="https://wa.me/5599999999999" class="btn-banner" target="_blank">Falar no WhatsApp</a>
   </div>
 </section>
 
-<!-- ===== SEÇÃO DE KITS ===== -->
 <section class="produtos">
-  <h2>Nossos Kits</h2>
-
-  <div class="grid">
-    <!-- Kit 1 -->
-    <div class="card">
-      <img src="d462d7d3-c4d6-4a29-9477-39efa858652b.jpg" alt="Kit quarteto">
-      <h3>Kit Quarteto</h3>
-      <p class="desc">Compre 3 perfumes e ganhe 50% de desconto no 4º perfume </p>
-      <p class="preco">R$ 979,99</p>
-      <a href="https://wa.me/5599999999999?text=Quero%20Kit%20Trio">
-        <button>Comprar</button>
-      </a>
+  <div class="secao-header">
+    <div class="secao-header-left">
+      <h2>Nossos Kits</h2>
+      <p id="subtitulo-contagem">Carregando...</p>
     </div>
-    </div>
+  </div>
+  <div class="grid" id="grid-produtos">
+    <div class="grid-status"><p>Carregando...</p></div>
   </div>
 </section>
 
+<footer>
+  <span class="logo-footer">Liberty</span>
+  <p>© 2025 Liberty Perfumaria · Divinópolis, MG</p>
+</footer>
+
+<div id="toast"></div>
+<script src="favoritar.js"></script>
+<script>
+  async function carregarProdutos() {
+    const { data: cat } = await db
+      .from('categorias')
+      .select('id')
+      .eq('tipo', 'kits')
+      .single();
+
+    const grid      = document.getElementById('grid-produtos');
+    const subtitulo = document.getElementById('subtitulo-contagem');
+
+    if (!cat) {
+      subtitulo.textContent = '0 kits disponíveis';
+      grid.innerHTML = '<div class="grid-status"><p>Nenhum kit disponível no momento.</p></div>';
+      return;
+    }
+
+    const { data, error } = await db
+      .from('produtos')
+      .select('id, nome, descricao, preco, imagem, subcategorias(nome)')
+      .eq('ativo', true)
+      .in('subcategoria_id',
+        (await db.from('subcategorias').select('id').eq('categoria_id', cat.id)).data?.map(s => s.id) || []
+      )
+      .order('criado_em', { ascending: false });
+
+    // Tenta também buscar direto por categoria se subcategorias não retornar nada
+    let lista = data || [];
+
+    if (lista.length === 0) {
+      // Fallback: busca produtos cuja subcategoria pertence à categoria kits
+      const { data: d2 } = await db
+        .from('produtos')
+        .select('id, nome, descricao, preco, imagem')
+        .eq('ativo', true)
+        .order('criado_em', { ascending: false });
+
+      lista = d2 || [];
+    }
+
+    subtitulo.textContent = `${lista.length} kit${lista.length !== 1 ? 's' : ''} disponíve${lista.length !== 1 ? 'is' : 'l'}`;
+
+    if (lista.length === 0) {
+      grid.innerHTML = '<div class="grid-status"><p>Nenhum kit disponível no momento.</p></div>';
+      return;
+    }
+
+    const waBase = 'https://wa.me/5599999999999?text=';
+    grid.innerHTML = lista.map(p => {
+      const precoFmt = 'R$ ' + Number(p.preco).toFixed(2).replace('.', ',');
+      const waLink   = waBase + encodeURIComponent(`Olá! Tenho interesse no kit ${p.nome}.`);
+      const subNome  = p.subcategorias?.nome || '';
+      return `
+        <div class="card">
+          <div class="card-img-wrap">
+            <div class="card-badges">
+              <span class="card-badge">Kit</span>
+              ${subNome ? `<span class="card-badge sub">${subNome}</span>` : ''}
+            </div>
+            <img src="${p.imagem || ''}" alt="${p.nome}" onerror="this.style.display='none'">
+          </div>
+          <div class="card-info">
+            <h3>${p.nome}</h3>
+            <p class="desc">${p.descricao || ''}</p>
+          </div>
+          <div class="preco-row">
+            <span class="preco">${precoFmt}</span>
+            <button class="btn-fav" id="fav-${p.id}" onclick="toggleFav(this,${p.id})" title="Favoritar">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <button class="card-comprar" onclick="abrirModal(${p.id})">Ver detalhes</button>
+        </div>`;
+    }).join('');
+
+    marcarFavoritos();
+  }
+
+  carregarProdutos();
+</script>
+<script src="produto-modal.js"></script>
 </body>
 </html>
