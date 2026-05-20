@@ -1,18 +1,11 @@
-// header.js — injeta o header correto em todas as páginas
-// Uso: <div id="header-root"></div> + <script src="header.js"></script>
-
+// header.js — menu sem Feminino/Masculino/Kits (ficam só como filtros)
 (function () {
   const sessaoRaw = localStorage.getItem('liberty_sessao');
   const usuario   = sessaoRaw ? JSON.parse(sessaoRaw) : null;
-
-  // Detecta a página atual para marcar o link ativo
   const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
 
   const links = [
     { href: 'index.html',    label: 'Início' },
-    { href: 'feminino.html', label: 'Feminino' },
-    { href: 'masculino.html',label: 'Masculino' },
-    { href: 'kits.html',     label: 'Kits' },
     { href: 'sobrenos.html', label: 'Sobre Nós' },
   ];
 
@@ -21,7 +14,6 @@
     return `<a href="${l.href}" ${ativo}>${l.label}</a>`;
   }).join('');
 
-  // Link de acesso (Entrar / nome do usuário)
   let linkAcesso;
   if (usuario) {
     const destino = usuario.admin ? 'admin.html' : 'perfil.html';
@@ -46,11 +38,7 @@
       </nav>
     </header>`;
 
-  // Injeta no elemento #header-root ou no início do body
   const root = document.getElementById('header-root');
-  if (root) {
-    root.innerHTML = html;
-  } else {
-    document.body.insertAdjacentHTML('afterbegin', html);
-  }
+  if (root) root.innerHTML = html;
+  else document.body.insertAdjacentHTML('afterbegin', html);
 })();
