@@ -1,7 +1,7 @@
-// header.js — menu sem Feminino/Masculino/Kits (ficam só como filtros)
+// header.js — menu de navegação compartilhado com mobile
 (function () {
-  const sessaoRaw = localStorage.getItem('liberty_sessao');
-  const usuario   = sessaoRaw ? JSON.parse(sessaoRaw) : null;
+  const sessaoRaw   = localStorage.getItem('liberty_sessao');
+  const usuario     = sessaoRaw ? JSON.parse(sessaoRaw) : null;
   const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
 
   const links = [
@@ -32,7 +32,14 @@
         </span>
         <div class="search-results" id="search-results"></div>
       </div>
-      <nav class="menu">
+      <button class="menu-toggle-site" id="menu-toggle-site" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <nav class="menu" id="menu-site">
         ${menuLinks}
         ${linkAcesso}
       </nav>
@@ -41,4 +48,43 @@
   const root = document.getElementById('header-root');
   if (root) root.innerHTML = html;
   else document.body.insertAdjacentHTML('afterbegin', html);
+
+  // Aguarda DOM estar pronto para adicionar eventos
+  function initMenu() {
+    const toggle = document.getElementById('menu-toggle-site');
+    const menu   = document.getElementById('menu-site');
+    if (!toggle || !menu) return;
+
+    const iconMenu   = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+    const iconFechar = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const aberto = menu.classList.toggle('aberto');
+      toggle.innerHTML = aberto ? iconFechar : iconMenu;
+    });
+
+    // Fecha ao clicar fora
+    document.addEventListener('click', function(e) {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.classList.remove('aberto');
+        toggle.innerHTML = iconMenu;
+      }
+    });
+
+    // Fecha ao clicar em link do menu
+    menu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        menu.classList.remove('aberto');
+        toggle.innerHTML = iconMenu;
+      });
+    });
+  }
+
+  // Inicializa após injetar HTML
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+  } else {
+    initMenu();
+  }
 })();

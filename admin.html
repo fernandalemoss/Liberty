@@ -121,6 +121,41 @@
 
     /* TOAST */
     #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:var(--gold); color:#080808; padding:11px 28px; font-family:'Jost',sans-serif; font-size:10px; font-weight:500; letter-spacing:3px; text-transform:uppercase; z-index:999; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
+    /* MENU MOBILE */
+    .menu-toggle { display:none; background:none; border:none; color:var(--gold); cursor:pointer; padding:4px; }
+    .menu-toggle svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    /* RESPONSIVO ADMIN */
+    @media (max-width: 768px) {
+      header { padding:0 16px; }
+      .logo { font-size:14px; letter-spacing:2px; }
+      .badge-admin { display:none; }
+      .main { grid-template-columns:1fr; }
+      .sidebar {
+        display:none; position:fixed; top:60px; left:0; right:0; bottom:0;
+        z-index:90; overflow-y:auto; padding:16px 0;
+      }
+      .sidebar.aberta { display:block; }
+      .menu-toggle { display:flex; }
+      .conteudo { padding:20px 16px; }
+      .stats { grid-template-columns:1fr 1fr; }
+      .dash-grid { grid-template-columns:1fr 1fr; }
+      .campos-grid { grid-template-columns:1fr; }
+      .modal { width:95vw; padding:24px 20px; }
+      .tabela-wrap { font-size:12px; }
+      thead th { padding:8px 8px; font-size:8px; }
+      tbody td { padding:8px; }
+      .td-acoes { flex-direction:column; gap:4px; }
+      .btn-editar, .btn-excluir { width:100%; text-align:center; }
+      .rank-bar-wrap { display:none; }
+      .aviso-item { flex-wrap:wrap; gap:8px; }
+      .barra-acoes { flex-wrap:wrap; }
+    }
+    @media (max-width:480px) {
+      .stats { grid-template-columns:1fr; }
+      .dash-grid { grid-template-columns:1fr; }
+    }
+
     /* DASHBOARD */
     .dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
     .dash-card { background:var(--surface); border:1px solid var(--border); padding:20px; }
@@ -148,6 +183,9 @@
 
 <header>
   <div class="logo">Liberty — Admin</div>
+  <button class="menu-toggle" onclick="toggleMenu()" id="menu-toggle">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
   <div class="header-right">
     <span class="badge-admin">Master</span>
     <span id="nome-admin" style="font-size:12px;color:var(--muted)"></span>
@@ -261,6 +299,13 @@
     <div class="page" id="page-avisos">
       <h2 class="page-titulo">Avisos de Estoque</h2>
       <p class="page-sub">Clientes aguardando notificação de produtos esgotados</p>
+      <div class="barra-acoes" style="margin-bottom:24px">
+        <button class="btn-novo" onclick="notificarTodos()" id="btn-notificar-todos">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Notificar todos em estoque
+        </button>
+        <span id="avisos-contador" style="font-size:12px;color:var(--muted);letter-spacing:1px"></span>
+      </div>
       <div id="avisos-lista"></div>
     </div>
 
@@ -270,8 +315,8 @@
       <p class="page-sub">Usuários cadastrados na plataforma</p>
       <div class="tabela-wrap">
         <table>
-          <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Cadastro</th></tr></thead>
-          <tbody id="tbody-usuarios"><tr><td colspan="4" class="vazio-tabela">Carregando...</td></tr></tbody>
+          <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Cadastro</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-usuarios"><tr><td colspan="5" class="vazio-tabela">Carregando...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -518,11 +563,11 @@
     document.getElementById('p-nome').value     = p?.nome || '';
     document.getElementById('p-descricao').value = p?.descricao || '';
     document.getElementById('p-preco').value    = p?.preco || '';
-    document.getElementById('p-estoque').value  = p?.estoque ?? 0;
+    document.getElementById('p-estoque').value  = p?.estoque !== undefined && p?.estoque !== null ? String(p.estoque) : '0';
     document.getElementById('p-sku').value      = p?.sku || '';
     document.getElementById('p-subcat').value   = p?.subcategoria_id || '';
     document.getElementById('p-ativo').value    = p?.ativo !== false ? 'true' : 'false';
-    document.getElementById('p-desconto').value       = p?.desconto ?? 0;
+    document.getElementById('p-desconto').value       = p?.desconto !== undefined && p?.desconto !== null ? String(p.desconto) : '0';
     document.getElementById('p-descricao-longa').value = p?.descricao_longa || '';
     document.getElementById('p-imagem-url').value = p?.imagem || '';
     document.getElementById('upload-status').textContent = p?.imagem ? 'Imagem já cadastrada' : 'Nenhuma imagem selecionada';
@@ -540,7 +585,8 @@
     const id       = document.getElementById('p-id').value;
     const nome     = document.getElementById('p-nome').value.trim();
     const preco    = parseFloat(document.getElementById('p-preco').value);
-    const estoque  = parseInt(document.getElementById('p-estoque').value) || 0;
+    const estoqueVal = document.getElementById('p-estoque').value;
+    const estoque  = estoqueVal !== '' ? parseInt(estoqueVal) : 0;
     const sku      = document.getElementById('p-sku').value.trim() || null;
     const imagem   = document.getElementById('p-imagem-url').value || null;
     const subcatId = document.getElementById('p-subcat').value || null;
@@ -549,7 +595,8 @@
 
     if (!nome || isNaN(preco)) { msgModal('msg-produto', 'Nome e preço são obrigatórios.', 'erro'); return; }
 
-    const desconto = parseInt(document.getElementById('p-desconto').value) || 0;
+    const descontoVal = document.getElementById('p-desconto').value;
+    const desconto = descontoVal !== '' ? parseInt(descontoVal) : 0;
     const descricaoLonga = document.getElementById('p-descricao-longa').value.trim() || null;
     const payload = {
       nome, descricao, descricao_longa: descricaoLonga, preco, estoque, sku, imagem, ativo, desconto,
@@ -719,6 +766,27 @@
 
   carregarProdutos();
 
+  // ── MENU MOBILE ───────────────────────────────────────────
+  function toggleMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const toggle  = document.getElementById('menu-toggle');
+    sidebar.classList.toggle('aberta');
+    const aberta = sidebar.classList.contains('aberta');
+    toggle.innerHTML = aberta
+      ? `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+  }
+
+  // Fecha sidebar ao clicar em nav-item no mobile
+  document.querySelectorAll('.nav-item, .sidebar-link').forEach(el => {
+    el.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('aberta');
+        document.getElementById('menu-toggle').innerHTML = `<svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+      }
+    });
+  });
+
   // ── DASHBOARD ─────────────────────────────────────────────
   async function carregarDashboard() {
     const hoje = new Date();
@@ -783,60 +851,180 @@
     const { data } = await db
       .from('avisos_estoque')
       .select('*, produtos(id, nome, imagem, estoque)')
-      .eq('notificado', false)
       .order('criado_em', { ascending: false });
 
     const lista = document.getElementById('avisos-lista');
+    const contador = document.getElementById('avisos-contador');
+
     if (!data || data.length === 0) {
-      lista.innerHTML = '<p style="color:var(--muted2);padding:20px 0">Nenhum aviso pendente.</p>';
+      lista.innerHTML = '<p style="color:var(--muted2);padding:20px 0">Nenhum aviso cadastrado ainda.</p>';
+      if (contador) contador.textContent = '';
       return;
     }
 
-    lista.innerHTML = data.map(a => `
-      <div class="aviso-item" id="aviso-${a.id}">
-        <div class="rank-info">
-          <div class="aviso-produto">${a.produtos?.nome || 'Produto removido'}</div>
-          <div class="aviso-email">${a.email}</div>
-        </div>
-        <span class="badge ${(a.produtos?.estoque||0) > 0 ? 'sim' : 'nao'}" style="font-size:10px;padding:3px 8px">
-          ${(a.produtos?.estoque||0) > 0 ? 'Em estoque' : 'Esgotado'}
-        </span>
-        <div class="aviso-data">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</div>
-        ${(a.produtos?.estoque||0) > 0
-          ? `<button class="btn-notificar" onclick="notificarCliente(${a.id}, '${a.email}', '${(a.produtos?.nome||'').replace(/'/g,"\'")}', ${a.produtos?.id})">Notificar</button>`
-          : '<span style="font-size:11px;color:var(--muted2)">Aguardando</span>'
-        }
-      </div>`).join('');
+    const pendentes = data.filter(a => !a.notificado && (a.produtos?.estoque||0) > 0);
+    if (contador) contador.textContent = pendentes.length > 0
+      ? `${pendentes.length} pendente${pendentes.length > 1 ? 's' : ''} para notificar`
+      : 'Todos notificados';
+
+    lista.innerHTML = data.map(a => {
+      const emEstoque  = (a.produtos?.estoque||0) > 0;
+      const notificado = a.notificado;
+      const opacidade  = notificado ? 'opacity:0.45;' : '';
+
+      return `
+        <div class="aviso-item" id="aviso-${a.id}" style="${opacidade}">
+          <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${notificado ? '#70c880' : emEstoque ? '#c9a84c' : '#e07070'}"></div>
+          <div class="rank-info">
+            <div class="aviso-produto">${a.produtos?.nome || 'Produto removido'}</div>
+            <div class="aviso-email">${a.email}</div>
+            ${notificado ? `<div style="font-size:10px;color:#70c880;letter-spacing:1px;margin-top:2px">Notificado em ${new Date(a.notificado_em).toLocaleDateString('pt-BR')}</div>` : ''}
+          </div>
+          <span class="badge ${emEstoque ? 'sim' : 'nao'}" style="font-size:10px;padding:3px 8px">
+            ${emEstoque ? 'Em estoque' : 'Esgotado'}
+          </span>
+          <div class="aviso-data">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</div>
+          ${!notificado && emEstoque
+            ? `<button class="btn-notificar" onclick="notificarCliente(${a.id}, '${a.email}', '${(a.produtos?.nome||'').replace(/'/g,"\'")}', ${a.produtos?.id})">Notificar</button>`
+            : notificado
+              ? `<span style="font-size:10px;color:#70c880;letter-spacing:1px">✓ Enviado</span>`
+              : `<span style="font-size:11px;color:var(--muted2)">Aguardando estoque</span>`
+          }
+        </div>`;
+    }).join('');
+  }
+
+  async function enviarEmail(email, nomeProduto, precoFmt) {
+    try {
+      // Pega a chave diretamente do supabase-config para garantir
+      const key = window.SUPABASE_KEY || SUPABASE_KEY;
+      const url = window.SUPABASE_URL || SUPABASE_URL;
+      console.log('Enviando email — URL:', url, '| KEY definida:', !!key);
+
+      const res = await fetch(`${url}/functions/v1/enviar-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${key}`,
+          'apikey':         key
+        },
+        body: JSON.stringify({ email, nomeProduto, precoFmt })
+      });
+
+      const data = await res.json();
+      console.log('Resposta Edge Function completa:', JSON.stringify(data));
+
+      if (!res.ok) {
+        console.error('Erro Edge Function:', JSON.stringify(data));
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Erro ao enviar email:', e);
+      return false;
+    }
   }
 
   async function notificarCliente(avisoId, email, nomeProduto, produtoId) {
-    const RESEND_KEY = window.RESEND_KEY || '';
-    if (!RESEND_KEY) { toast('Configure RESEND_KEY no supabase-config.js'); return; }
+    // Busca o produto — se não encontrar, usa preço vazio
+    let precoFmt = '';
+    if (produtoId) {
+      const { data: prod } = await db
+        .from('produtos')
+        .select('preco, desconto')
+        .eq('id', produtoId)
+        .maybeSingle(); // maybeSingle não dá erro se não encontrar
+      if (prod) {
+        const preco    = Number(prod.preco || 0);
+        const desconto = prod.desconto || 0;
+        const final    = desconto > 0 ? preco * (1 - desconto / 100) : preco;
+        precoFmt = 'R$ ' + final.toFixed(2).replace('.', ',');
+      }
+    }
 
-    const { data: prod } = await db.from('produtos').select('preco, desconto').eq('id', produtoId).single();
-    const preco    = Number(prod?.preco || 0);
-    const desconto = prod?.desconto || 0;
-    const final    = desconto > 0 ? preco * (1 - desconto/100) : preco;
-    const precoFmt = 'R$ ' + final.toFixed(2).replace('.', ',');
-
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Liberty Perfumaria <noreply@libertyperfumaria.com.br>',
-        to: [email],
-        subject: `✨ ${nomeProduto} voltou ao estoque!`,
-        html: `<div style="font-family:Helvetica,sans-serif;max-width:500px;margin:0 auto;background:#0f0f0f;color:#ede0c8;padding:40px 32px"><h1 style="font-family:Georgia,serif;color:#c9a84c;letter-spacing:4px;font-weight:300;font-size:22px;text-align:center;margin-bottom:32px">LIBERTY PERFUMARIA</h1><h2 style="color:#fff;font-family:Georgia,serif;font-weight:300;font-size:20px;margin-bottom:16px">Boas notícias! 🎉</h2><p style="color:rgba(237,224,200,.7);line-height:1.7;margin-bottom:20px">O perfume <strong style="color:#c9a84c">${nomeProduto}</strong> voltou ao estoque!</p><p style="color:rgba(237,224,200,.7);margin-bottom:32px">Preço: <strong style="color:#c9a84c">${precoFmt}</strong></p><a href="https://wa.me/5599999999999?text=Quero%20comprar%20${encodeURIComponent(nomeProduto)}" style="display:inline-block;background:#c9a84c;color:#080808;padding:14px 32px;text-decoration:none;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:600">COMPRAR AGORA</a></div>`
-      })
-    });
-
-    if (res.ok) {
-      await db.from('avisos_estoque').update({ notificado: true, notificado_em: new Date().toISOString() }).eq('id', avisoId);
+    const ok = await enviarEmail(email, nomeProduto, precoFmt);
+    if (ok) {
+      await db.from('avisos_estoque')
+        .update({ notificado: true, notificado_em: new Date().toISOString() })
+        .eq('id', avisoId);
       toast(`Email enviado para ${email}!`);
       carregarAvisos();
     } else {
-      toast('Erro ao enviar email. Verifique a API Key do Resend.');
+      toast('Erro ao enviar email. Tente novamente.');
     }
+  }
+
+  // ── NOTIFICAR TODOS ──────────────────────────────────────
+  let _notificandoTodos = false; // flag para evitar duplo clique / loop
+
+  async function notificarTodos() {
+    if (_notificandoTodos) return;
+    _notificandoTodos = true;
+
+    const btn = document.getElementById('btn-notificar-todos');
+    btn.disabled = true;
+    btn.textContent = 'Buscando pendentes...';
+
+    // Busca apenas não notificados com estoque > 0
+    const { data: avisos, error } = await db
+      .from('avisos_estoque')
+      .select('id, email, produtos(id, nome, preco, desconto, estoque)')
+      .eq('notificado', false);
+
+    if (error) {
+      toast('Erro ao buscar avisos.');
+      btn.disabled = false;
+      btn.textContent = 'Notificar todos em estoque';
+      _notificandoTodos = false;
+      return;
+    }
+
+    const pendentes = (avisos || []).filter(a => (a.produtos?.estoque || 0) > 0);
+
+    if (pendentes.length === 0) {
+      toast('Nenhum aviso pendente para produtos em estoque.');
+      btn.disabled = false;
+      btn.textContent = 'Notificar todos em estoque';
+      _notificandoTodos = false;
+      return;
+    }
+
+    let enviados = 0;
+    let erros    = 0;
+
+    for (const a of pendentes) {
+      btn.textContent = `Enviando ${enviados + 1}/${pendentes.length}...`;
+
+      const p     = a.produtos;
+      const preco = Number(p.preco);
+      const desc  = p.desconto || 0;
+      const final = desc > 0 ? preco * (1 - desc / 100) : preco;
+      const fmt   = 'R$ ' + final.toFixed(2).replace('.', ',');
+
+      // Marca ANTES de enviar para evitar reenvio caso a página recarregue
+      await db.from('avisos_estoque')
+        .update({ notificado: true, notificado_em: new Date().toISOString() })
+        .eq('id', a.id);
+
+      const ok = await enviarEmail(a.email, p.nome, fmt);
+
+      if (ok) {
+        enviados++;
+      } else {
+        // Reverte se o envio falhou
+        await db.from('avisos_estoque')
+          .update({ notificado: false, notificado_em: null })
+          .eq('id', a.id);
+        erros++;
+      }
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Notificar todos em estoque';
+    _notificandoTodos = false;
+
+    toast(`${enviados} email${enviados !== 1 ? 's' : ''} enviado${enviados !== 1 ? 's' : ''}${erros > 0 ? ` · ${erros} com erro` : ''}!`);
+    carregarAvisos(); // só recarrega uma vez no final
   }
 
   // Sobrescreve ir() para incluir novas páginas

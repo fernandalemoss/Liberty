@@ -186,6 +186,16 @@
 <script src="favoritar.js"></script>
 
 <script>
+  // ── SHA-256 ───────────────────────────────────────────────
+  async function sha256(texto) {
+    const encoder = new TextEncoder();
+    const data    = encoder.encode(texto);
+    const hash    = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
   // usuario já declarado no favoritar.js
   if (!usuario) { window.location.replace('login-cliente.html'); }
   if (usuario.admin) { window.location.replace('admin.html'); }
@@ -311,9 +321,17 @@
       if (senhaNova.length < 6) { msg('Nova senha deve ter no mínimo 6 caracteres.', 'erro'); return; }
       if (senhaNova !== senhaConf) { msg('As senhas não coincidem.', 'erro'); return; }
 
-      // Verifica se a senha atual está correta
-      const { data: check } = await db.from('usuarios')
-        .select('id').eq('id', usuario.id).eq('senha', senhaAtual).single();
+      // Verifica senha atual — tenta hash primeiro, depois texto puro (compatibilidade)
+      const senhaAtualHash = await sha256(senhaAtual);
+      let { data: check } = await db.from('usuarios')
+        .select('id').eq('id', usuario.id).eq('senha', senhaAtualHash).maybeSingle();
+
+      // Compatibilidade com senhas antigas em texto puro
+      if (!check) {
+        const res2 = await db.from('usuarios')
+          .select('id').eq('id', usuario.id).eq('senha', senhaAtual).maybeSingle();
+        check = res2.data;
+      }
       if (!check) { msg('Senha atual incorreta.', 'erro'); return; }
     }
 
@@ -321,7 +339,7 @@
 
     // Monta payload de atualização
     const payload = { nome };
-    if (trocandoSenha) payload.senha = senhaNova;
+    if (trocandoSenha) payload.senha = await sha256(senhaNova);
 
     const { error } = await db.from('usuarios')
       .update(payload)

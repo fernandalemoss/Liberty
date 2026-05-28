@@ -120,6 +120,45 @@
     window.location.replace(u.admin ? 'admin.html' : 'perfil.html');
   }
 
+  // ── SHA-256 via Web Crypto API (nativa do browser) ────────
+  async function sha256(texto) {
+    const encoder = new TextEncoder();
+    const data    = encoder.encode(texto);
+    const hash    = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  // ── Emails salvos localmente para autocomplete ────────────
+  function salvarEmailLocal(email) {
+    const emails = JSON.parse(localStorage.getItem('liberty_emails') || '[]');
+    if (!emails.includes(email)) {
+      emails.unshift(email);
+      localStorage.setItem('liberty_emails', JSON.stringify(emails.slice(0, 5)));
+    }
+  }
+
+  function carregarEmailsLocais() {
+    const emails  = JSON.parse(localStorage.getItem('liberty_emails') || '[]');
+    const inputEl = document.getElementById('e-email');
+    if (!inputEl || emails.length === 0) return;
+
+    // Preenche o último email usado
+    inputEl.value = emails[0];
+
+    // Cria datalist para sugestões
+    const dl = document.createElement('datalist');
+    dl.id = 'emails-sugeridos';
+    emails.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e;
+      dl.appendChild(opt);
+    });
+    document.body.appendChild(dl);
+    inputEl.setAttribute('list', 'emails-sugeridos');
+  }
+
   function trocarAba(aba) {
     document.querySelectorAll('.aba').forEach((b,i) =>
       b.classList.toggle('ativa', aba === 'entrar' ? i===0 : i===1));
@@ -183,9 +222,12 @@
     loading('btn-cad', 'spin-cad', 'txt-cad', true);
 
     // Campos exatos do banco: nome, email, senha, admin
+    // Hash da senha antes de salvar
+    const senhaHash = await sha256(senha);
+
     const { data, error } = await db
       .from('usuarios')
-      .insert([{ nome, email, senha, admin: false }])
+      .insert([{ nome, email, senha: senhaHash, admin: false }])
       .select('id, nome, email, admin')
       .single();
 
@@ -197,6 +239,7 @@
       return;
     }
 
+    salvarEmailLocal(email);
     localStorage.setItem('liberty_sessao', JSON.stringify({
       id:    data.id,
       nome:  data.nome,
@@ -212,6 +255,9 @@
     if (e.key !== 'Enter') return;
     document.getElementById('form-entrar').classList.contains('ativo') ? fazerLogin() : fazerCadastro();
   });
+
+  // Carrega emails salvos ao iniciar
+  carregarEmailsLocais();
 </script>
 </body>
 </html>
